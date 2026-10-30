@@ -104,8 +104,10 @@ def _strip_notes(elem) -> str:
 def extract_book_sections(xml_path: str, target_book: str, lang: str, is_source: bool = True) -> dict:
     """
     Universal Perseus TEI-XML extractor.
-    Handles both 3-tier (book -> chapter -> section) and 2-tier (book -> chapter/section) trees,
-    as well as single-book works where chapters are the top-level divs.
+    Handles:
+      - 3-tier trees: book -> chapter -> section (Strabo, Diodorus, Pausanias, Pliny)
+      - 2-tier trees: book -> chapter/section (Diogenes Laertius, Appian)
+      - Epitome trees: epitome -> chapter -> section (Apollodorus Epitome)
     """
     parser = etree.XMLParser(recover=True, resolve_entities=False, huge_tree=True)
     tree = etree.parse(xml_path, parser)
@@ -113,53 +115,71 @@ def extract_book_sections(xml_path: str, target_book: str, lang: str, is_source:
 
     sections = {}
 
+    # Pass 1: Look for a top-level book/textpart matching target_book
+    target_el = None
     for el in root.iter():
         if not isinstance(el.tag, str):
             continue
         tag = etree.QName(el).localname
         if not tag.startswith("div"):
             continue
-
         div_type = (el.get("subtype") or el.get("type") or "").lower()
         div_n = str(el.get("n") or "").strip()
 
-        if div_type in ("book", "textpart", "epitome") and div_n == str(target_book):
-            child_divs = [
-                c for c in el
-                if isinstance(c.tag, str) and etree.QName(c).localname.startswith("div")
-            ]
+        if div_type in ("book", "textpart") and div_n == str(target_book):
+            target_el = el
+            break
 
-            if not child_divs:
-                raw = _strip_notes(el)
-                sections[f"{target_book}.1"] = (
+    # Pass 2: Fallback for Epitomes / single-book works where top level is 'chapter'
+    if target_el is None:
+        for el in root.iter():
+            if not isinstance(el.tag, str):
+                continue
+            tag = etree.QName(el).localname
+            if not tag.startswith("div"):
+                continue
+            div_type = (el.get("subtype") or el.get("type") or "").lower()
+            div_n = str(el.get("n") or "").strip()
+            if div_type == "chapter" and div_n == str(target_book):
+                target_el = el
+                break
+
+    if target_el is None:
+        return sections
+
+    child_divs = [
+        c for c in target_el
+        if isinstance(c.tag, str) and etree.QName(c).localname.startswith("div")
+    ]
+
+    if not child_divs:
+        raw = _strip_notes(target_el)
+        sections[f"{target_book}.1"] = (
+            clean_source_text(raw, lang) if is_source else clean_english_text(raw)
+        )
+        return sections
+
+    for c_el in child_divs:
+        c_n = str(c_el.get("n") or "1").strip()
+        grand_divs = [
+            g for g in c_el
+            if isinstance(g.tag, str) and etree.QName(g).localname.startswith("div")
+        ]
+
+        if grand_divs:
+            for g_el in grand_divs:
+                g_n = str(g_el.get("n") or "1").strip()
+                ref_id = f"{target_book}.{c_n}.{g_n}"
+                raw = _strip_notes(g_el)
+                sections[ref_id] = (
                     clean_source_text(raw, lang) if is_source else clean_english_text(raw)
                 )
-                break
-
-            for c_el in child_divs:
-                c_n = str(c_el.get("n") or "1").strip()
-                grand_divs = [
-                    g for g in c_el
-                    if isinstance(g.tag, str) and etree.QName(g).localname.startswith("div")
-                ]
-
-                if grand_divs:
-                    for g_el in grand_divs:
-                        g_n = str(g_el.get("n") or "1").strip()
-                        ref_id = f"{target_book}.{c_n}.{g_n}"
-                        raw = _strip_notes(g_el)
-                        sections[ref_id] = (
-                            clean_source_text(raw, lang) if is_source else clean_english_text(raw)
-                        )
-                else:
-                    ref_id = f"{target_book}.{c_n}"
-                    raw = _strip_notes(c_el)
-                    sections[ref_id] = (
-                        clean_source_text(raw, lang) if is_source else clean_english_text(raw)
-                    )
-
-            if sections:
-                break
+        else:
+            ref_id = f"{target_book}.{c_n}"
+            raw = _strip_notes(c_el)
+            sections[ref_id] = (
+                clean_source_text(raw, lang) if is_source else clean_english_text(raw)
+            )
 
     return sections
 
@@ -173,7 +193,6 @@ def ingest_target_book(target: dict) -> str:
     orig_cache = f"data/{work_id}_orig.xml"
     eng_cache = f"data/{work_id}_eng.xml"
 
-    # Only query GitHub if the XML files aren't already cached locally
     if not os.path.exists(orig_cache) or not os.path.exists(eng_cache):
         orig_url, eng_url = resolve_perseus_urls(target["repo"], target["dir_path"], lang)
         download_xml(orig_url, orig_cache)
@@ -182,7 +201,7 @@ def ingest_target_book(target: dict) -> str:
     else:
         print(f"[*] Using cached XML files for {target['title']}")
 
-    print(f"[*] Aligning {target['title']} — Book {book_num} ({lang} + English)...")
+    print(f"[*] Aligning {target['title']} — Book/Section {book_num} ({lang} + English)...")
     orig_secs = extract_book_sections(orig_cache, book_num, lang=lang, is_source=True)
     eng_secs = (
         extract_book_sections(eng_cache, book_num, lang=lang, is_source=False)
@@ -220,6 +239,12 @@ def ingest_target_book(target: dict) -> str:
             "english_text": eng_text,
             "word_count": len(words),
         })
+
+    if not rows:
+        raise ValueError(
+            f"No text sections found for {target['title']} (Book/Section '{book_num}'). "
+            f"Check if this book number exists in the Perseus XML edition."
+        )
 
     df = pd.DataFrame(rows)
     out_csv = f"data/{sector_id}_aligned.csv"

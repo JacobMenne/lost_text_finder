@@ -300,17 +300,27 @@ def interactive_post_scan_explorer(
                     print("  └" + "─" * 76 + "┘")
 
 
-def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 45):
+def scan_and_attribute(
+    aligned_csv: str,
+    window_size: int = 180,
+    stride: int = 45,
+    snr_threshold: float = 2.8,
+    headless: bool = False,
+) -> Path | None:
     df = pd.read_csv(aligned_csv)
     if df.empty:
         print("[!] Aligned CSV is empty — skipping scan.")
-        return
+        return None
 
     sector_id = str(df.loc[0, "sector_id"])
     work_title = str(df.loc[0, "work_title"])
     lang = str(df.loc[0, "language"])
 
     tokens_base = []
+    # Auto-scale window resolution for short texts / epitomes (< 4,500 words)
+    if len(tokens_base) < 4500 and window_size > 100:
+        window_size = 90
+        stride = 22
     token_sec_idx = []
     for idx, row in df.iterrows():
         for w in str(row["source_text"]).split():
@@ -321,7 +331,7 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
 
     if len(tokens_base) < window_size:
         print(f"[!] Text too short ({len(tokens_base)} words) for {window_size}-word window.")
-        return
+        return None
 
     host_p_dist = get_particle_distribution(tokens_base, lang)
 
@@ -440,14 +450,13 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
     wdf["primary_attribution"] = first_match
     wdf["secondary_attribution"] = second_match
 
-    # Save outputs using OS-independent pathlib.Path
     cand_dir = Path("candidates")
     (cand_dir / "tentative_ghosts").mkdir(parents=True, exist_ok=True)
     (cand_dir / "boundary_extensions").mkdir(parents=True, exist_ok=True)
     (cand_dir / "verified_known").mkdir(parents=True, exist_ok=True)
 
     sec_low = sector_id.lower()
-    high_snr = wdf[wdf["peak_snr"] >= 2.8]
+    high_snr = wdf[wdf["peak_snr"] >= snr_threshold]
 
     ghost_df = deduplicate_peaks(high_snr[high_snr["novelty_status"].str.startswith("UNCREDITED")])
     bound_df = deduplicate_peaks(high_snr[high_snr["novelty_status"].str.startswith("EXTENDED")])
@@ -466,7 +475,7 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
     ]
     for ax, (col, title, color) in zip(axes, plot_cfg):
         ax.plot(wdf["window_id"], wdf[col], color=color, lw=1.7)
-        ax.axhline(2.8, color="crimson", linestyle="--", alpha=0.75, label="2.8σ Threshold")
+        ax.axhline(snr_threshold, color="crimson", linestyle="--", alpha=0.75, label=f"{snr_threshold:.1f}σ Threshold")
         ax.set_ylabel("SNR (σ)")
         ax.set_title(f"{sector_id} — {title}", fontweight="bold")
         ax.grid(alpha=0.25)
@@ -478,7 +487,6 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
     plt.savefig(plot_path, dpi=180)
     plt.close(fig)
 
-    # Generate Stylized Parchment Codex HTML Reader & auto-open
     codex_path = cand_dir / f"{sec_low}_codex.html"
     generate_codex_html(
         df_sec=df,
@@ -489,6 +497,8 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
         suspect_sections=suspect_sections,
         plot_path=plot_path,
         output_html_path=codex_path,
+        snr_threshold=snr_threshold,
+        window_size=window_size,
     )
 
     max_snr = float(wdf["peak_snr"].max()) if not wdf.empty else 0.0
@@ -500,14 +510,11 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
         max_snr=max_snr,
     )
 
-    print("\n" + "═" * 82)
-    print(f" SCAN COMPLETE: {work_title} ({sector_id})  |  Peak SNR: {max_snr:.2f}σ")
-    print(f" Parchment Codex Reader: {codex_path}")
-    print(f" Diagnostic Plot:        {plot_path}")
-    print(f" Cataloged: {len(ghost_df)} Uncredited Passages | {len(bound_df)} Extended Borrowings | {len(known_df)} Explicit Citations")
-    print("═" * 82)
+    print(f"[+] Scan complete: {work_title} ({sector_id}) | Peak {max_snr:.2f}σ -> {codex_path}")
 
-    # Automatically launch the Stylized Parchment Codex in the user's browser
+    if headless:
+        return codex_path
+
     open_file_cross_platform(codex_path)
 
     top_discoveries = pd.concat([ghost_df, bound_df]).sort_values("peak_snr", ascending=False).head(4)
@@ -515,3 +522,4 @@ def scan_and_attribute(aligned_csv: str, window_size: int = 180, stride: int = 4
         print_candidate_card(hit, full_text=False)
 
     interactive_post_scan_explorer(df, wdf, ghost_df, bound_df, known_df, suspect_sections, codex_path)
+    return codex_path

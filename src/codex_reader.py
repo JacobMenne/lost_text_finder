@@ -1,6 +1,5 @@
 import base64
 import html
-import json
 import os
 import sys
 import subprocess
@@ -17,30 +16,29 @@ def _encode_image_base64(png_path: Path) -> str:
 
 
 def open_file_cross_platform(filepath: Path):
-    """
-    Opens the generated HTML Codex in the user's default browser across
-    Windows, macOS, and Linux (including Ubuntu/VirtualBox environments).
-    """
-    abs_url = filepath.resolve().as_uri()
+    """Opens a file or URL in the default browser across Windows, macOS, and Linux."""
+    target = str(filepath) if str(filepath).startswith("http") else filepath.resolve().as_uri()
     try:
-        # Suppress noisy browser stderr logs in Linux terminals
         if sys.platform.startswith("linux"):
+            arg = str(filepath) if str(filepath).startswith("http") else str(filepath.resolve())
             subprocess.Popen(
-                ["xdg-open", str(filepath.resolve())],
+                ["xdg-open", arg],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
             return
         elif sys.platform == "darwin":
-            subprocess.Popen(["open", str(filepath.resolve())])
+            arg = str(filepath) if str(filepath).startswith("http") else str(filepath.resolve())
+            subprocess.Popen(["open", arg])
             return
         elif sys.platform.startswith("win"):
-            os.startfile(str(filepath.resolve()))  # type: ignore[attr-defined]
+            arg = str(filepath) if str(filepath).startswith("http") else str(filepath.resolve())
+            os.startfile(arg)  # type: ignore[attr-defined]
             return
     except Exception:
         pass
 
-    webbrowser.open(abs_url)
+    webbrowser.open(target)
 
 
 def generate_codex_html(
@@ -52,10 +50,12 @@ def generate_codex_html(
     suspect_sections: dict,
     plot_path: Path,
     output_html_path: Path,
+    snr_threshold: float = 2.8,
+    window_size: int = 180,
 ) -> Path:
     """
     Generates a standalone, interactive Ancient Tome / Parchment Codex HTML reader
-    with live font, margin, border, and theme controls.
+    with live font, margin, border, and theme controls, plus a Grand Archive return link.
     """
     sector_id = str(df_sec.loc[0, "sector_id"])
     work_title = str(df_sec.loc[0, "work_title"])
@@ -71,7 +71,7 @@ def generate_codex_html(
 
     def render_cards(sub_df: pd.DataFrame, badge_class: str) -> str:
         if sub_df.empty:
-            return '<div class="empty-notice">No passages detected in this category above the 2.8σ threshold.</div>'
+            return f'<div class="empty-notice">No passages detected in this category above the {snr_threshold:.1f}σ threshold.</div>'
 
         cards = []
         for _, hit in sub_df.iterrows():
@@ -117,7 +117,6 @@ def generate_codex_html(
             """)
         return "\n".join(cards)
 
-    # Render Suspect Lineup Evidence cards
     suspect_cards = []
     for s_label, sec_indices in suspect_sections.items():
         refs = [str(df_sec.loc[i, "cts_ref"]) for i in sec_indices]
@@ -142,7 +141,6 @@ def generate_codex_html(
         """)
     suspects_html = "\n".join(suspect_cards) if suspect_cards else '<div class="empty-notice">No explicitly named suspect authors in this book.</div>'
 
-    # Map high-SNR section indices so the Full Book Reader highlights flagged sections
     ghost_secs = set(ghost_df["sec_center_idx"].astype(int).tolist()) if not ghost_df.empty else set()
     bound_secs = set(bound_df["sec_center_idx"].astype(int).tolist()) if not bound_df.empty else set()
     known_secs = set(known_df["sec_center_idx"].astype(int).tolist()) if not known_df.empty else set()
@@ -254,7 +252,6 @@ def generate_codex_html(
         transition: background-color 0.25s ease, color 0.25s ease;
     }}
 
-    /* Top Control Toolbar */
     .codex-toolbar {{
         position: sticky;
         top: 0;
@@ -276,8 +273,23 @@ def generate_codex_html(
     .toolbar-group {{
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
+    }}
+
+    .archive-home-btn {{
+        background: #8c581c;
+        color: #fff8eb;
+        text-decoration: none;
+        padding: 6px 14px;
+        border-radius: 4px;
+        border: 1px solid #d4a359;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: background 0.15s ease;
+    }}
+    .archive-home-btn:hover {{
+        background: #b57426;
     }}
 
     .codex-toolbar select, .codex-toolbar input[type="range"] {{
@@ -290,7 +302,6 @@ def generate_codex_html(
         cursor: pointer;
     }}
 
-    /* Main Parchment Tome Container */
     .tome-page {{
         max-width: var(--page-max-width);
         margin: 34px auto 64px auto;
@@ -306,10 +317,7 @@ def generate_codex_html(
         transition: all 0.2s ease;
     }}
 
-    body.border-ornate .tome-page {{
-        border: 6px double var(--border-ornate);
-    }}
-
+    body.border-ornate .tome-page {{ border: 6px double var(--border-ornate); }}
     body.border-minimal .tome-page {{
         border: 1px solid var(--border-ornate);
         background-image: none;
@@ -349,7 +357,6 @@ def generate_codex_html(
         color: var(--text-muted);
     }}
 
-    /* Navigation Tabs */
     .codex-tabs {{
         display: flex;
         flex-wrap: wrap;
@@ -381,7 +388,6 @@ def generate_codex_html(
     .tab-panel {{ display: none; }}
     .tab-panel.active {{ display: block; }}
 
-    /* Candidate Tome Cards */
     .tome-card {{
         background: var(--bg-card);
         border: 2px solid var(--border-ornate);
@@ -433,10 +439,7 @@ def generate_codex_html(
         color: var(--text-muted);
     }}
 
-    .metrics-row {{
-        margin-top: 6px;
-        font-size: 14px;
-    }}
+    .metrics-row {{ margin-top: 6px; font-size: 14px; }}
 
     .parchment-passage {{
         padding: 24px 28px;
@@ -445,9 +448,7 @@ def generate_codex_html(
         text-align: justify;
     }}
 
-    .parchment-passage p {{
-        margin: 0;
-    }}
+    .parchment-passage p {{ margin: 0; }}
 
     .drop-cap::first-letter {{
         float: left;
@@ -482,7 +483,6 @@ def generate_codex_html(
         color: #fff;
     }}
 
-    /* Full Book Reader Mode */
     .book-section {{
         display: grid;
         grid-template-columns: 140px 1fr;
@@ -565,10 +565,9 @@ def generate_codex_html(
 </head>
 <body class="border-ornate">
 
-<!-- Interactive Styling Toolbar -->
 <nav class="codex-toolbar">
     <div class="toolbar-group">
-        <strong>📜 CODEX STYLING:</strong>
+        <a href="/" class="archive-home-btn">🏛 Grand Archive</a>
         <label>Surface:
             <select id="themeSelect" onchange="updateTheme(this.value)">
                 <option value="default">Aged Parchment Tome</option>
@@ -601,6 +600,7 @@ def generate_codex_html(
         <label>Margins:
             <input type="range" min="720" max="1240" step="40" value="960" oninput="updateWidth(this.value)">
         </label>
+        <a href="/shutdown" class="archive-home-btn" style="background:#6e1a1a;border-color:#d47a59;">⏻ Exit</a>
     </div>
 </nav>
 
@@ -610,8 +610,9 @@ def generate_codex_html(
         <h1 class="tome-title">{html.escape(work_title)}</h1>
         <div class="tome-stats">
             <span>Sector: <strong>{html.escape(sector_id)}</strong></span>
-            <span>Original Language: <strong>{html.escape(lang)}</strong></span>
+            <span>Language: <strong>{html.escape(lang)}</strong></span>
             <span>Peak Anomaly: <strong>{max_snr:.2f}σ</strong></span>
+            <span>Window: <strong>{window_size}w ({snr_threshold:.1f}σ Cutoff)</strong></span>
             <span>Sections Aligned: <strong>{len(df_sec)}</strong></span>
         </div>
     </header>

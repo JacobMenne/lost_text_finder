@@ -71,7 +71,6 @@
         transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Top Control Toolbar */
     .codex-toolbar {
         position: sticky;
         top: 0;
@@ -93,8 +92,23 @@
     .toolbar-group {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
+    }
+
+    .archive-home-btn {
+        background: #8c581c;
+        color: #fff8eb;
+        text-decoration: none;
+        padding: 6px 14px;
+        border-radius: 4px;
+        border: 1px solid #d4a359;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: background 0.15s ease;
+    }
+    .archive-home-btn:hover {
+        background: #b57426;
     }
 
     .codex-toolbar select, .codex-toolbar input[type="range"] {
@@ -107,7 +121,6 @@
         cursor: pointer;
     }
 
-    /* Main Parchment Tome Container */
     .tome-page {
         max-width: var(--page-max-width);
         margin: 34px auto 64px auto;
@@ -123,10 +136,7 @@
         transition: all 0.2s ease;
     }
 
-    body.border-ornate .tome-page {
-        border: 6px double var(--border-ornate);
-    }
-
+    body.border-ornate .tome-page { border: 6px double var(--border-ornate); }
     body.border-minimal .tome-page {
         border: 1px solid var(--border-ornate);
         background-image: none;
@@ -166,7 +176,6 @@
         color: var(--text-muted);
     }
 
-    /* Navigation Tabs */
     .codex-tabs {
         display: flex;
         flex-wrap: wrap;
@@ -198,7 +207,6 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* Candidate Tome Cards */
     .tome-card {
         background: var(--bg-card);
         border: 2px solid var(--border-ornate);
@@ -250,10 +258,7 @@
         color: var(--text-muted);
     }
 
-    .metrics-row {
-        margin-top: 6px;
-        font-size: 14px;
-    }
+    .metrics-row { margin-top: 6px; font-size: 14px; }
 
     .parchment-passage {
         padding: 24px 28px;
@@ -262,9 +267,7 @@
         text-align: justify;
     }
 
-    .parchment-passage p {
-        margin: 0;
-    }
+    .parchment-passage p { margin: 0; }
 
     .drop-cap::first-letter {
         float: left;
@@ -299,7 +302,6 @@
         color: #fff;
     }
 
-    /* Full Book Reader Mode */
     .book-section {
         display: grid;
         grid-template-columns: 140px 1fr;
@@ -382,10 +384,9 @@
 </head>
 <body class="border-ornate">
 
-<!-- Interactive Styling Toolbar -->
 <nav class="codex-toolbar">
     <div class="toolbar-group">
-        <strong>📜 CODEX STYLING:</strong>
+        <a href="/" class="archive-home-btn">🏛 Grand Archive</a>
         <label>Surface:
             <select id="themeSelect" onchange="updateTheme(this.value)">
                 <option value="default">Aged Parchment Tome</option>
@@ -427,8 +428,9 @@
         <h1 class="tome-title">Strabo, Geography</h1>
         <div class="tome-stats">
             <span>Sector: <strong>STRABO_14</strong></span>
-            <span>Original Language: <strong>GREEK</strong></span>
+            <span>Language: <strong>GREEK</strong></span>
             <span>Peak Anomaly: <strong>7.77σ</strong></span>
+            <span>Window: <strong>180w (2.8σ Cutoff)</strong></span>
             <span>Sections Aligned: <strong>125</strong></span>
         </div>
     </header>
