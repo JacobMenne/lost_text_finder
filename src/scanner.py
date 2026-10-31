@@ -1,3 +1,4 @@
+from archive_db import record_public_candidates
 from pathlib import Path
 from codex_reader import generate_codex_html, open_file_cross_platform
 import os
@@ -499,6 +500,14 @@ def scan_and_attribute(
         output_html_path=codex_path,
         snr_threshold=snr_threshold,
         window_size=window_size,
+    )
+
+    # Automatically record Uncredited Passages & Extended Borrowings into the Public Candidates DB
+    record_public_candidates(
+        work_title=work_title,
+        lang=lang,
+        ghost_df=ghost_df,
+        bound_df=bound_df,
     )
 
     max_snr = float(wdf["peak_snr"].max()) if not wdf.empty else 0.0

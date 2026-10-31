@@ -2,4 +2,6 @@ venv/
 __pycache__/
 *.pyc
 data/*.xml
+data/personal_bookmarks.db
+.env
 .DS_Store

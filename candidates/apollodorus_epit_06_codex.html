@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
     :root {
         --bg-outer: #1b1612;
@@ -23,107 +24,99 @@
         --reader-font: 'EB Garamond', Georgia, serif;
         --font-size: 20px;
         --line-height: 1.75;
-        --page-max-width: 960px;
-        --page-padding: 52px;
+        --page-max-width: 980px;
+        --page-padding: 50px;
     }
 
     body.theme-illuminated {
-        --bg-outer: #261c14;
-        --bg-page: #fbf6ec;
-        --bg-card: #f5ebd6;
-        --bg-bar: #ead8b8;
-        --text-main: #1f140a;
-        --text-muted: #5a4228;
-        --accent-gold: #9a6b1f;
-        --border-ornate: #b58938;
+        --bg-outer: #261c14; --bg-page: #fbf6ec; --bg-card: #f5ebd6;
+        --bg-bar: #ead8b8; --text-main: #1f140a; --text-muted: #5a4228;
+        --accent-gold: #9a6b1f; --border-ornate: #b58938;
     }
 
     body.theme-obsidian {
-        --bg-outer: #0b0c10;
-        --bg-page: #16181d;
-        --bg-card: #1e2129;
-        --bg-bar: #262a34;
-        --text-main: #e6dcc8;
-        --text-muted: #a89f8d;
-        --accent-gold: #d4a359;
-        --border-ornate: #6e552f;
+        --bg-outer: #0b0c10; --bg-page: #16181d; --bg-card: #1e2129;
+        --bg-bar: #262a34; --text-main: #e6dcc8; --text-muted: #a89f8d;
+        --accent-gold: #d4a359; --border-ornate: #6e552f;
     }
 
     body.theme-academic {
-        --bg-outer: #e5e7eb;
-        --bg-page: #ffffff;
-        --bg-card: #f9fafb;
-        --bg-bar: #f3f4f6;
-        --text-main: #111827;
-        --text-muted: #4b5563;
-        --accent-gold: #1e3a8a;
-        --border-ornate: #d1d5db;
+        --bg-outer: #e5e7eb; --bg-page: #ffffff; --bg-card: #f9fafb;
+        --bg-bar: #f3f4f6; --text-main: #111827; --text-muted: #4b5563;
+        --accent-gold: #1e3a8a; --border-ornate: #d1d5db;
     }
 
     * { box-sizing: border-box; }
 
     body {
-        margin: 0;
-        padding: 0;
+        margin: 0; padding: 0;
         background-color: var(--bg-outer);
         color: var(--text-main);
         font-family: var(--reader-font);
-        transition: background-color 0.25s ease, color 0.25s ease;
+        transition: background-color 0.2s ease, color 0.2s ease;
     }
 
+    /* Streamlined Top Navigation Bar */
     .codex-toolbar {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background: #14100d;
-        color: #e8dcc4;
+        position: sticky; top: 0; z-index: 200;
+        background: #14100d; color: #e8dcc4;
         border-bottom: 2px solid #6b4e2b;
         padding: 10px 24px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-        align-items: center;
-        justify-content: space-between;
-        font-family: 'Cinzel', Georgia, serif;
-        font-size: 13px;
+        display: flex; flex-wrap: wrap; gap: 14px;
+        align-items: center; justify-content: space-between;
+        font-family: 'Cinzel', Georgia, serif; font-size: 13px;
         box-shadow: 0 4px 16px rgba(0,0,0,0.45);
     }
 
-    .toolbar-group {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
+    .toolbar-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .nav-btn {
+        background: #261e17; color: #f3e8d2;
+        text-decoration: none; padding: 7px 13px;
+        border-radius: 4px; border: 1px solid #7a5a32;
+        font-family: 'Cinzel', serif; font-weight: 700; font-size: 12.5px;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        transition: all 0.15s ease;
+    }
+    .nav-btn:hover, .nav-btn.active-nav {
+        background: #8c581c; color: #fff; border-color: #d4a359;
+    }
+    .nav-btn.exit-btn {
+        background: #5e1919; border-color: #b85d43;
+    }
+    .nav-btn.exit-btn:hover { background: #8b1e1e; }
+
+    /* Bundled Appearance Settings Dropdown Popover */
+    .settings-dropdown { position: relative; display: inline-block; }
+
+    .settings-popover {
+        display: none;
+        position: absolute; right: 0; top: calc(100% + 8px);
+        width: 320px; background: #1c1611; color: #f3e8d2;
+        border: 2px solid #9b7646; border-radius: 6px;
+        padding: 16px 18px; z-index: 300;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.75);
+        font-family: 'Cinzel', serif; font-size: 12.5px;
+    }
+    .settings-popover.open { display: block; }
+
+    .setting-row {
+        display: flex; flex-direction: column; gap: 5px;
+        margin-bottom: 13px;
+    }
+    .setting-row:last-child { margin-bottom: 0; }
+    .setting-row label { color: #d4a359; font-weight: 700; display: flex; justify-content: space-between; }
+
+    .settings-popover select, .settings-popover input[type="range"] {
+        width: 100%; background: #2b221a; color: #f3e8d2;
+        border: 1px solid #8c683b; padding: 6px 8px;
+        border-radius: 4px; font-family: inherit; cursor: pointer;
     }
 
-    .archive-home-btn {
-        background: #8c581c;
-        color: #fff8eb;
-        text-decoration: none;
-        padding: 6px 14px;
-        border-radius: 4px;
-        border: 1px solid #d4a359;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        transition: background 0.15s ease;
-    }
-    .archive-home-btn:hover {
-        background: #b57426;
-    }
-
-    .codex-toolbar select, .codex-toolbar input[type="range"] {
-        background: #261e17;
-        color: #f3e8d2;
-        border: 1px solid #8c683b;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-family: inherit;
-        cursor: pointer;
-    }
-
+    /* Main Parchment Tome Container */
     .tome-page {
         max-width: var(--page-max-width);
-        margin: 34px auto 64px auto;
+        margin: 32px auto 64px auto;
         padding: var(--page-padding);
         background-color: var(--bg-page);
         background-image:
@@ -135,7 +128,6 @@
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65), inset 0 0 60px rgba(120, 82, 34, 0.14);
         transition: all 0.2s ease;
     }
-
     body.border-ornate .tome-page { border: 6px double var(--border-ornate); }
     body.border-minimal .tome-page {
         border: 1px solid var(--border-ornate);
@@ -146,282 +138,310 @@
     .tome-header {
         text-align: center;
         border-bottom: 3px double var(--border-ornate);
-        padding-bottom: 24px;
-        margin-bottom: 28px;
+        padding-bottom: 22px; margin-bottom: 26px;
     }
-
     .tome-super {
-        font-family: 'Cinzel', serif;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        font-size: 13px;
-        color: var(--accent-gold);
-        margin-bottom: 8px;
+        font-family: 'Cinzel', serif; letter-spacing: 3px;
+        text-transform: uppercase; font-size: 13px;
+        color: var(--accent-gold); margin-bottom: 8px;
     }
-
     .tome-title {
         font-family: 'Cinzel Decorative', 'Cinzel', serif;
-        font-size: 34px;
-        margin: 6px 0 12px 0;
-        color: var(--text-main);
+        font-size: 34px; margin: 6px 0 12px 0; color: var(--text-main);
     }
-
     .tome-stats {
-        display: flex;
-        justify-content: center;
-        gap: 24px;
-        flex-wrap: wrap;
-        font-family: 'Cinzel', serif;
-        font-size: 14px;
-        color: var(--text-muted);
+        display: flex; justify-content: center; gap: 22px; flex-wrap: wrap;
+        font-family: 'Cinzel', serif; font-size: 14px; color: var(--text-muted);
+    }
+    .help-link {
+        color: var(--accent-gold); text-decoration: underline; font-weight: 700; cursor: pointer;
     }
 
-    .codex-tabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 28px;
-        border-bottom: 2px solid var(--border-ornate);
-        padding-bottom: 12px;
-    }
-
-    .tab-btn {
-        font-family: 'Cinzel', serif;
-        font-size: 14px;
-        font-weight: 700;
-        padding: 9px 16px;
-        background: var(--bg-card);
-        color: var(--text-main);
-        border: 1px solid var(--border-ornate);
-        cursor: pointer;
-        border-radius: 3px;
-        transition: all 0.15s ease;
-    }
-
-    .tab-btn:hover, .tab-btn.active {
-        background: var(--accent-gold);
-        color: #fff9ee;
-        border-color: var(--accent-gold);
-    }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
+    /* Candidate Tome Cards */
     .tome-card {
         background: var(--bg-card);
         border: 2px solid var(--border-ornate);
-        margin-bottom: 32px;
+        margin-bottom: 28px;
         box-shadow: 0 4px 14px rgba(0,0,0,0.12);
     }
-
     .card-header {
-        background: var(--bg-bar);
-        padding: 12px 20px;
+        background: var(--bg-bar); padding: 12px 20px;
         border-bottom: 1px solid var(--border-ornate);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-        font-family: 'Cinzel', serif;
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 10px; font-family: 'Cinzel', serif;
     }
-
-    .passage-ref {
-        font-size: 18px;
-        font-weight: 700;
-        margin-right: 12px;
-    }
-
+    .passage-ref { font-size: 18px; font-weight: 700; margin-right: 12px; }
     .badge {
-        font-size: 11px;
-        padding: 3px 9px;
-        border-radius: 3px;
-        color: #fff;
-        font-family: 'Cinzel', serif;
-        letter-spacing: 0.6px;
+        font-size: 11px; padding: 3px 9px; border-radius: 3px;
+        color: #fff; font-family: 'Cinzel', serif; letter-spacing: 0.6px;
     }
     .badge-ghost { background: var(--badge-ghost); }
     .badge-bound { background: var(--badge-bound); }
     .badge-known { background: var(--badge-known); }
-
-    .snr-pill {
-        font-weight: 700;
-        color: var(--accent-gold);
-        font-size: 15px;
-    }
+    .snr-pill { font-weight: 700; color: var(--accent-gold); font-size: 15px; }
 
     .attribution-bar {
-        padding: 12px 20px;
-        border-bottom: 1px dashed var(--border-ornate);
-        font-size: 15px;
-        line-height: 1.5;
-        color: var(--text-muted);
+        padding: 12px 20px; border-bottom: 1px dashed var(--border-ornate);
+        font-size: 15px; line-height: 1.5; color: var(--text-muted);
     }
-
     .metrics-row { margin-top: 6px; font-size: 14px; }
 
     .parchment-passage {
         padding: 24px 28px;
-        font-size: var(--font-size);
-        line-height: var(--line-height);
+        font-size: var(--font-size); line-height: var(--line-height);
         text-align: justify;
     }
-
     .parchment-passage p { margin: 0; }
-
     .drop-cap::first-letter {
-        float: left;
-        font-family: 'Cinzel Decorative', 'Cinzel', serif;
-        font-size: 3.1em;
-        line-height: 0.82;
-        padding-right: 10px;
-        padding-top: 4px;
-        color: var(--accent-gold);
-        font-weight: 700;
+        float: left; font-family: 'Cinzel Decorative', 'Cinzel', serif;
+        font-size: 3.1em; line-height: 0.82;
+        padding-right: 10px; padding-top: 4px;
+        color: var(--accent-gold); font-weight: 700;
     }
 
     .card-footer {
-        padding: 10px 20px;
-        border-top: 1px solid var(--border-ornate);
-        text-align: right;
-        background: var(--bg-bar);
+        padding: 10px 20px; border-top: 1px solid var(--border-ornate);
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 10px; background: var(--bg-bar);
     }
-
     .context-btn {
-        font-family: 'Cinzel', serif;
-        font-size: 13px;
-        background: transparent;
-        color: var(--accent-gold);
-        border: 1px solid var(--accent-gold);
-        padding: 5px 12px;
-        cursor: pointer;
-        font-weight: 700;
+        font-family: 'Cinzel', serif; font-size: 12.5px;
+        background: transparent; color: var(--accent-gold);
+        border: 1px solid var(--accent-gold); padding: 6px 12px;
+        cursor: pointer; font-weight: 700; border-radius: 3px;
     }
-    .context-btn:hover {
-        background: var(--accent-gold);
-        color: #fff;
+    .context-btn:hover { background: var(--accent-gold); color: #fff; }
+
+    /* Inline Bookmark Drawer */
+    .bookmark-drawer {
+        display: none; padding: 14px 20px;
+        background: var(--bg-page); border-top: 1px dashed var(--border-ornate);
+        font-family: 'Cinzel', serif; font-size: 13px;
+    }
+    .bookmark-drawer.open { display: block; }
+    .bm-form-row {
+        display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .bm-input, .bm-select {
+        padding: 6px 10px; border: 1px solid var(--border-ornate);
+        background: var(--bg-card); color: var(--text-main);
+        font-family: var(--reader-font); font-size: 15px; border-radius: 3px;
+    }
+    .bm-input { flex: 1; min-width: 220px; }
+    .bm-save-btn {
+        background: var(--accent-gold); color: #fff; border: none;
+        padding: 7px 14px; font-family: 'Cinzel', serif; font-weight: 700;
+        cursor: pointer; border-radius: 3px;
+    }
+    mark.search-highlight {
+        background-color: rgba(212, 163, 89, 0.45);
+        color: inherit;
+        padding: 1px 4px;
+        border-bottom: 2px solid var(--accent-gold);
+        border-radius: 2px;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    function toggleSettingsMenu(e) {
+        e.stopPropagation();
+        document.getElementById('settingsPopover').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const pop = document.getElementById('settingsPopover');
+        if (pop && !pop.contains(e.target)) pop.classList.remove('open');
+    });
+
+    function updateTheme(themeClass) {
+        document.body.classList.remove('theme-illuminated', 'theme-obsidian', 'theme-academic');
+        if (themeClass !== 'default') document.body.classList.add(themeClass);
+        localStorage.setItem('codex_theme', themeClass);
+        const sel = document.getElementById('themeSelect');
+        if (sel) sel.value = themeClass;
     }
 
+    function updateBorder(borderClass) {
+        document.body.classList.remove('border-ornate', 'border-standard', 'border-minimal');
+        document.body.classList.add(borderClass);
+        localStorage.setItem('codex_border', borderClass);
+        const sel = document.getElementById('borderSelect');
+        if (sel) sel.value = borderClass;
+    }
+
+    function updateFont(fontFamily) {
+        document.documentElement.style.setProperty('--reader-font', fontFamily);
+        localStorage.setItem('codex_font', fontFamily);
+        const sel = document.getElementById('fontSelect');
+        if (sel) sel.value = fontFamily;
+    }
+
+    function updateSize(px) {
+        document.documentElement.style.setProperty('--font-size', px + 'px');
+        localStorage.setItem('codex_size', px);
+        const lbl = document.getElementById('sizeValLabel');
+        if (lbl) lbl.textContent = px + 'px';
+        const rng = document.getElementById('sizeRange');
+        if (rng) rng.value = px;
+    }
+
+    function updateWidth(px) {
+        document.documentElement.style.setProperty('--page-max-width', px + 'px');
+        localStorage.setItem('codex_width', px);
+        const lbl = document.getElementById('widthValLabel');
+        if (lbl) lbl.textContent = px + 'px';
+        const rng = document.getElementById('widthRange');
+        if (rng) rng.value = px;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const t = localStorage.getItem('codex_theme');
+        if (t) updateTheme(t);
+        const b = localStorage.getItem('codex_border');
+        if (b) updateBorder(b);
+        const f = localStorage.getItem('codex_font');
+        if (f) updateFont(f);
+        const s = localStorage.getItem('codex_size');
+        if (s) updateSize(s);
+        const w = localStorage.getItem('codex_width');
+        if (w) updateWidth(w);
+    });
+
+    function toggleBookmarkDrawer(drawerId) {
+        const el = document.getElementById(drawerId);
+        if (el) el.classList.toggle('open');
+    }
+
+    async function saveBookmark(btnEl, payload, drawerId) {
+        const drawer = document.getElementById(drawerId);
+        const tag = drawer.querySelector('.bm-select').value;
+        const note = drawer.querySelector('.bm-input').value;
+        payload.folder_tag = tag;
+        payload.personal_note = note;
+
+        btnEl.textContent = 'Saving...';
+        try {
+            const resp = await fetch('/api/bookmark', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            if (resp.ok) {
+                btnEl.textContent = 'Saved to Bookmarks';
+                btnEl.style.background = '#1f5c3a';
+                setTimeout(() => drawer.classList.remove('open'), 700);
+            }
+        } catch (err) {
+            btnEl.textContent = 'Error Saving';
+        }
+    }
+</script>
+
+<style>
+    .codex-tabs {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        margin-bottom: 28px; border-bottom: 2px solid var(--border-ornate);
+        padding-bottom: 12px;
+    }
+    .tab-btn {
+        font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700;
+        padding: 9px 16px; background: var(--bg-card); color: var(--text-main);
+        border: 1px solid var(--border-ornate); cursor: pointer;
+        border-radius: 3px; transition: all 0.15s ease;
+    }
+    .tab-btn:hover, .tab-btn.active {
+        background: var(--accent-gold); color: #fff9ee; border-color: var(--accent-gold);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
     .book-section {
-        display: grid;
-        grid-template-columns: 140px 1fr;
-        gap: 20px;
-        padding: 18px 16px;
-        border-bottom: 1px dashed var(--border-ornate);
-        font-size: var(--font-size);
-        line-height: var(--line-height);
+        display: grid; grid-template-columns: 140px 1fr; gap: 20px;
+        padding: 18px 16px; border-bottom: 1px dashed var(--border-ornate);
+        font-size: var(--font-size); line-height: var(--line-height);
     }
-
     .sec-margin {
-        font-family: 'Cinzel', serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--accent-gold);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+        font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700;
+        color: var(--accent-gold); display: flex; flex-direction: column; gap: 6px;
     }
-
     .inline-flag {
-        font-size: 11px;
-        padding: 3px 6px;
-        border-radius: 3px;
-        color: #fff;
-        display: inline-block;
-        width: fit-content;
+        font-size: 11px; padding: 3px 6px; border-radius: 3px;
+        color: #fff; display: inline-block; width: fit-content;
     }
     .ghost-flag { background: var(--badge-ghost); }
     .bound-flag { background: var(--badge-bound); }
     .known-flag { background: var(--badge-known); }
-
     .highlight-ghost { background: rgba(139, 30, 30, 0.09); border-left: 4px solid var(--badge-ghost); }
     .highlight-bound { background: rgba(143, 87, 13, 0.09); border-left: 4px solid var(--badge-bound); }
     .highlight-known { background: rgba(31, 92, 58, 0.07); border-left: 4px solid var(--badge-known); }
-
     .eng-para { margin: 0 0 8px 0; text-align: justify; }
-
     .orig-toggle summary {
-        font-family: 'Cinzel', serif;
-        font-size: 13px;
-        color: var(--text-muted);
-        cursor: pointer;
+        font-family: 'Cinzel', serif; font-size: 13px; color: var(--text-muted); cursor: pointer;
     }
     .orig-para {
-        font-size: 0.9em;
-        color: var(--text-muted);
-        margin-top: 8px;
-        padding: 10px;
-        background: var(--bg-bar);
-        border-left: 2px solid var(--border-ornate);
+        font-size: 0.9em; color: var(--text-muted); margin-top: 8px;
+        padding: 10px; background: var(--bg-bar); border-left: 2px solid var(--border-ornate);
     }
-
-    .scan-chart {
-        width: 100%;
-        height: auto;
-        border: 2px solid var(--border-ornate);
-        margin-top: 12px;
-    }
-
-    .suspect-sample {
-        margin-bottom: 14px;
-        padding-bottom: 12px;
-        border-bottom: 1px dotted var(--border-ornate);
-    }
-
-    .empty-notice {
-        padding: 36px;
-        text-align: center;
-        font-style: italic;
-        color: var(--text-muted);
-        border: 1px dashed var(--border-ornate);
-    }
-
-    @media (max-width: 720px) {
-        .book-section { grid-template-columns: 1fr; }
-        .tome-page { padding: 20px; margin: 12px; }
-    }
+    .scan-chart { width: 100%; height: auto; border: 2px solid var(--border-ornate); margin-top: 12px; }
+    .suspect-sample { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dotted var(--border-ornate); }
+    .empty-notice { padding: 36px; text-align: center; font-style: italic; color: var(--text-muted); border: 1px dashed var(--border-ornate); }
 </style>
 </head>
 <body class="border-ornate">
 
-<nav class="codex-toolbar">
-    <div class="toolbar-group">
-        <a href="/" class="archive-home-btn">🏛 Grand Archive</a>
-        <label>Surface:
-            <select id="themeSelect" onchange="updateTheme(this.value)">
-                <option value="default">Aged Parchment Tome</option>
-                <option value="theme-illuminated">Illuminated Vellum (Cream & Gold)</option>
-                <option value="theme-obsidian">Alexandria Night (Obsidian & Brass)</option>
-                <option value="theme-academic">Modern Academic Press</option>
-            </select>
-        </label>
-        <label>Typeface:
-            <select id="fontSelect" onchange="updateFont(this.value)">
-                <option value="'EB Garamond', Georgia, serif">EB Garamond (Classical Aldine)</option>
-                <option value="'Cormorant Garamond', Georgia, serif">Cormorant (High-Contrast Manuscript)</option>
-                <option value="'Cinzel', Georgia, serif">Cinzel (Roman Inscription)</option>
-                <option value="Georgia, 'Times New Roman', serif">Classic Serif</option>
-                <option value="'Inter', system-ui, sans-serif">Clean Sans-Serif</option>
-            </select>
-        </label>
-        <label>Borders:
-            <select id="borderSelect" onchange="updateBorder(this.value)">
-                <option value="border-ornate">Double-Rule Ornate Tome</option>
-                <option value="border-standard">Single Rule</option>
-                <option value="border-minimal">Minimalist Flat</option>
-            </select>
-        </label>
-    </div>
-    <div class="toolbar-group">
-        <label>Font Size:
-            <input type="range" min="16" max="26" value="20" oninput="updateSize(this.value)">
-        </label>
-        <label>Margins:
-            <input type="range" min="720" max="1240" step="40" value="960" oninput="updateWidth(this.value)">
-        </label>
-        <a href="/shutdown" class="archive-home-btn" style="background:#6e1a1a;border-color:#d47a59;">⏻ Exit</a>
-    </div>
-</nav>
+
+    <nav class="codex-toolbar">
+        <div class="toolbar-group">
+            <a href="/" class="nav-btn ">Grand Archive</a>
+            <a href="/bookmarks" class="nav-btn ">My Bookmarks</a>
+            <a href="/public-db" class="nav-btn ">Findings Archive</a>
+            <a href="/guide" class="nav-btn ">Field Guide</a>
+        </div>
+        <div class="toolbar-group">
+            
+            <div class="settings-dropdown">
+                <button class="nav-btn" onclick="toggleSettingsMenu(event)">Appearance ▾</button>
+                <div id="settingsPopover" class="settings-popover" onclick="event.stopPropagation()">
+                    <div class="setting-row">
+                        <label>Surface Theme</label>
+                        <select id="themeSelect" onchange="updateTheme(this.value)">
+                            <option value="default">Aged Parchment Tome</option>
+                            <option value="theme-illuminated">Illuminated Vellum (Cream &amp; Gold)</option>
+                            <option value="theme-obsidian">Alexandria Night (Obsidian &amp; Brass)</option>
+                            <option value="theme-academic">Modern Academic Press</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label>Typeface</label>
+                        <select id="fontSelect" onchange="updateFont(this.value)">
+                            <option value="'EB Garamond', Georgia, serif">EB Garamond (Classical Aldine)</option>
+                            <option value="'Cormorant Garamond', Georgia, serif">Cormorant (Manuscript)</option>
+                            <option value="'Cinzel', Georgia, serif">Cinzel (Roman Inscription)</option>
+                            <option value="Georgia, 'Times New Roman', serif">Classic Serif</option>
+                            <option value="'Inter', system-ui, sans-serif">Clean Sans-Serif</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label>Borders &amp; Frame</label>
+                        <select id="borderSelect" onchange="updateBorder(this.value)">
+                            <option value="border-ornate">Double-Rule Ornate Tome</option>
+                            <option value="border-standard">Single Rule Frame</option>
+                            <option value="border-minimal">Minimalist Flat Page</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label><span>Font Size</span> <span id="sizeValLabel">20px</span></label>
+                        <input id="sizeRange" type="range" min="16" max="26" value="20" oninput="updateSize(this.value)">
+                    </div>
+                    <div class="setting-row">
+                        <label><span>Page Width / Margins</span> <span id="widthValLabel">980px</span></label>
+                        <input id="widthRange" type="range" min="720" max="1280" step="40" value="980" oninput="updateWidth(this.value)">
+                    </div>
+                </div>
+            </div>
+            <a href="/shutdown" class="nav-btn exit-btn" title="Shut down Python server and exit">Exit</a>
+        </div>
+    </nav>
+    
 
 <main class="tome-page">
     <header class="tome-header">
@@ -430,43 +450,43 @@
         <div class="tome-stats">
             <span>Sector: <strong>APOLLODORUS_EPIT_06</strong></span>
             <span>Language: <strong>GREEK</strong></span>
-            <span>Peak Anomaly: <strong>2.70σ</strong></span>
-            <span>Window: <strong>90w (2.8σ Cutoff)</strong></span>
-            <span>Sections Aligned: <strong>32</strong></span>
+            <span>Peak Anomaly Strength: <strong>2.70σ</strong></span>
+            <span>Scan Settings: <strong>90-Word Window (2.8σ Sensitivity Cutoff)</strong></span>
+            <span><a href="/guide" class="help-link">What do these metrics mean?</a></span>
         </div>
     </header>
 
     <div class="codex-tabs">
         <button class="tab-btn active" onclick="showTab('tab-ghosts', this)">
-            ★ Uncredited Passages (0)
+            Uncredited Passages (0)
         </button>
         <button class="tab-btn" onclick="showTab('tab-bounds', this)">
-            ◆ Extended Borrowings (0)
+            Extended Borrowings (0)
         </button>
         <button class="tab-btn" onclick="showTab('tab-known', this)">
-            ● Explicit Citations (0)
+            Explicit Citations (0)
         </button>
         <button class="tab-btn" onclick="showTab('tab-suspects', this)">
-            ⚖ Suspect Lineup (1)
+            Suspect Lineup (1)
         </button>
         <button class="tab-btn" onclick="showTab('tab-chart', this)">
-            📈 3-Channel Signal Curve
+            3-Channel Signal Curve
         </button>
         <button id="fullBookTabBtn" class="tab-btn" onclick="showTab('tab-fullbook', this)">
-            📖 Full Book Reader (32 Sections)
+            Full Book Reader (32 Sections)
         </button>
     </div>
 
     <section id="tab-ghosts" class="tab-panel active">
-        <div class="empty-notice">No passages detected in this category above the 2.8σ threshold.</div>
+        <div class="empty-notice">No passages detected in this category above the 2.8σ sensitivity cutoff.</div>
     </section>
 
     <section id="tab-bounds" class="tab-panel">
-        <div class="empty-notice">No passages detected in this category above the 2.8σ threshold.</div>
+        <div class="empty-notice">No passages detected in this category above the 2.8σ sensitivity cutoff.</div>
     </section>
 
     <section id="tab-known" class="tab-panel">
-        <div class="empty-notice">No passages detected in this category above the 2.8σ threshold.</div>
+        <div class="empty-notice">No passages detected in this category above the 2.8σ sensitivity cutoff.</div>
     </section>
 
     <section id="tab-suspects" class="tab-panel">
@@ -499,6 +519,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.1</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-0')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">After these things they met in assembly, and Agamemnon and Menelaus quarrelled, Menelaus advising that they should sail away, and Agamemnon insisting that they should stay and sacrifice to Athena. When they put to sea, Diomedes, Nestor, and Menelaus in company, the two former had a prosperous voyage, but Menelaus was overtaken by a storm, and after losing the rest of his vessels, arrived with five ships in Egypt .</p>
@@ -506,6 +529,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">καὶ μετὰ ταῦτα συνελθόντων εἰς ἐκκλησίαν ἀγαμέμνων καὶ μενέλαος ἐφιλονείκουν μενελάου λέγοντος ἀποπλεῖν ἀγαμέμνονος δὲ ἐπιμένειν κελεύοντος καὶ θύειν ἀθηνᾷ ἀναχθέντες δὲ διομήδης καὶ νέστωρ καὶ μενέλαος ἅμα οἱ μὲν εὐπλοοῦσιν ὁ δὲ μενέλαος χειμῶνι περιπεσών τῶν λοιπῶν ἀπολομένων σκαφῶν πέντε ναυσὶν ἐπ αἴγυπτον ἀφικνεῖται</p>
                 </details>
+                <div id="sec-bm-0" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.1...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.1&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;After these things they met in assembly, and Agamemnon and Menelaus quarrelled, Menelaus advising that they should sail away, and Agamemnon insisting that they should stay and sacrifice to Athena. When they put to sea, Diomedes, Nestor, and Menelaus in company, the two former had a prosperous voyage, but Menelaus was overtaken by a storm, and after losing the rest of his vessels, arrived with five ships in Egypt .&quot;}, "sec-bm-0")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -513,6 +548,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.2</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-1')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">But Amphilochus, and Calchas, and Leonteus, and Podalirius, and Polypoetes left their ships in Ilium and journeyed by land to Colophon , and there buried Calchas the diviner ; for it was foretold him that he would die if he met with a wiser diviner than himself.</p>
@@ -520,6 +558,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἀμφίλοχος δὲ καὶ κάλχας καὶ λεοντεὺς καὶ ποδαλείριος καὶ πολυποίτης ἐν ἰλίῳ τὰς ναῦς ἀπολιπόντες ἐπὶ κολοφῶνα πεζῇ πορεύονται κἀκεῖ θάπτουσι κάλχαντα τὸν μάντιν ἦν γὰρ αὐτῷ λόγιον τελευτήσειν ἐὰν ἑαυτοῦ σοφωτέρῳ περιτύχῃ μάντει</p>
                 </details>
+                <div id="sec-bm-1" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.2...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.2&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;But Amphilochus, and Calchas, and Leonteus, and Podalirius, and Polypoetes left their ships in Ilium and journeyed by land to Colophon , and there buried Calchas the diviner ; for it was foretold him that he would die if he met with a wiser diviner than himself.&quot;}, "sec-bm-1")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -527,6 +577,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.3</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-2')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Well, they were lodged by the diviner Mopsus, who was a son of Apollo and Manto, and he wrangled with Calchas about the art of divination. A wild fig-tree grew on the spot, and when Calchas asked, “ How many figs does it bear?” Mopsus answered, “ Ten thousand, and a bushel, and one fig over,” and they were found to be so.</p>
@@ -534,6 +587,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ὑποδεχθέντων οὖν ὑπὸ μόψου μάντεως ὃς ἀπόλλωνος καὶ μαντοῦς παῖς ὑπῆρχεν οὗτος ὁ μόψος περὶ μαντικῆς ἤρισε κάλχαντι καὶ κάλχαντος ἀνακρίναντος ἐρινεοῦ ἑστώσης πόσους ὀλύνθους φέρει ὁ μόψος μυρίους ἔφη καὶ μέδιμνον καὶ ἕνα ὄλυνθον περισσόν</p>
                 </details>
+                <div id="sec-bm-2" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.3...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.3&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Well, they were lodged by the diviner Mopsus, who was a son of Apollo and Manto, and he wrangled with Calchas about the art of divination. A wild fig-tree grew on the spot, and when Calchas asked, \u201c How many figs does it bear?\u201d Mopsus answered, \u201c Ten thousand, and a bushel, and one fig over,\u201d and they were found to be so.&quot;}, "sec-bm-2")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -541,6 +606,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.4</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-3')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">And when Mopsus asked Calchas concerning a pregnant sow, “ How many pigs has she in her womb, and when will she farrow?” Calchas answered, “ Eight.” But Mopsus smiled and said,“ The divination of Calchas is the reverse of exact; but I, as a son of Apollo and Manto, am extremely rich in the sharp sight which comes of exact divination, and I divine that the number of pigs in the womb is not eight, as Calchas says, but nine, and that they are all male and will be farrowed without fail tomorrow at the sixth hour.” So when these things turned out so, Calchas died of a broken heart and was buried at Notium .</p>
@@ -548,6 +616,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">καὶ εὑρέθησαν οὕτω μόψος δὲ συὸς οὔσης ἐπιτόκου ἠρώτα κάλχαντα πόσους χοίρους κατὰ γαστρὸς ἔχει καὶ πότε τέκοι τοῦ δὲ εἰπόντος ὀκτώ μειδιάσας ὁ μόψος ἔφη κάλχας τῆς ἀκριβοῦς μαντείας ἀπεναντιῶς διακεῖται ἐγὼ δ ἀπόλλωνος καὶ μαντοῦς παῖς ὑπάρχων τῆς ἀκριβοῦς μαντείας τὴν ὀξυδορκίαν πάντως πλουτῶ καὶ οὐχ ὡς ὁ κάλχας ὀκτώ ἀλλ ἐννέα κατὰ γαστρός καὶ τούτους ἄρρενας ὅλους ἔχειν μαντεύομαι καὶ αὔριον ἀνυπερθέτως ἐν ἕκτῃ ὥρᾳ τεχθήσεσθαι ὧν γενομένων κάλχας ἀθυμήσας ἀπέθανε καὶ ἐτάφη ἐν νοτίῳ</p>
                 </details>
+                <div id="sec-bm-3" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.4...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.4&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;And when Mopsus asked Calchas concerning a pregnant sow, \u201c How many pigs has she in her womb, and when will she farrow?\u201d Calchas answered, \u201c Eight.\u201d But Mopsus smiled and said,\u201c The divination of Calchas is the reverse of exact; but I, as a son of Apollo and Manto, am extremely rich in the sharp sight which comes of exact divination, and I divine that the number of pigs in the womb is not eight, as Calchas says, but nine, and that they are all male and will be farrowed without fail tomorrow at the sixth hour.\u201d So when these things turned out so, Calchas died of a broken heart and was buried at Notium .&quot;}, "sec-bm-3")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -555,6 +635,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.5</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-4')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">After sacrificing, Agamemnon put to sea and touched at Tenedos . But Thetis came and persuaded Neoptolemus to wait two days and to offer sacrifice; and he waited. But the others put to sea and encountered a storm at Tenos ; for Athena entreated Zeus to send a tempest against the Greeks; and many ships foundered.</p>
@@ -562,6 +645,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἀγαμέμνων δὲ θύσας ἀνάγεται καὶ τενέδῳ προσίσχει νεοπτόλεμον δὲ πείθει θέτις ἀφικομένη ἐπιμεῖναι δύο ἡμέρας καὶ θυσιάσαι καὶ ἐπιμένει οἱ δὲ ἀνάγονται καὶ περὶ τῆνον χειμάζονται ἀθηνᾶ γὰρ ἐδεήθη διὸς τοῖς ἕλλησι χειμῶνα ἐπιπέμψαι καὶ πολλαὶ νῆες βυθίζονται</p>
                 </details>
+                <div id="sec-bm-4" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.5...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.5&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;After sacrificing, Agamemnon put to sea and touched at Tenedos . But Thetis came and persuaded Neoptolemus to wait two days and to offer sacrifice; and he waited. But the others put to sea and encountered a storm at Tenos ; for Athena entreated Zeus to send a tempest against the Greeks; and many ships foundered.&quot;}, "sec-bm-4")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -569,6 +664,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.6</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-5')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">And Athena threw a thunderbolt at the ship of Ajax; and when the ship went to pieces he made his way safe to a rock, and declared that he was saved in spite of the intention of Athena. But Poseidon smote the rock with his trident and split it, and Ajax fell into the sea and perished; and his body, being washed up, was buried by Thetis in Myconos.</p>
@@ -576,6 +674,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἀθηνᾶ δὲ ἐπὶ τὴν αἴαντος ναῦν κεραυνὸν βάλλει ὁ δὲ τῆς νεὼς διαλυθείσης ἐπί τινα πέτραν διασωθεὶς παρὰ τὴν θεοῦ ἔφη πρόνοιαν σεσῶσθαι ποσειδῶν δὲ πλήξας τῇ τριαίνῃ τὴν πέτραν ἔσχισεν ὁ δὲ πεσὼν εἰς τὴν θάλασσαν τελευτᾷ καὶ ἐκβρασθέντα θάπτει θέτις ἐν μυκόνῳ</p>
                 </details>
+                <div id="sec-bm-5" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.6...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.6&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;And Athena threw a thunderbolt at the ship of Ajax; and when the ship went to pieces he made his way safe to a rock, and declared that he was saved in spite of the intention of Athena. But Poseidon smote the rock with his trident and split it, and Ajax fell into the sea and perished; and his body, being washed up, was buried by Thetis in Myconos.&quot;}, "sec-bm-5")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -583,6 +693,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.7</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-6')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">The others being driven to Euboea by night, Nauplius kindled a beacon on Mount Caphareus; and they, thinking it was some of those who were saved, stood in for the shore, and the vessels were wrecked on the Capherian rocks, and many men perished.</p>
@@ -590,6 +703,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">τῶν δὲ ἄλλων εὐβοίᾳ προσφερομένων νυκτὸς ναύπλιος ἐπὶ τοῦ καφηρέως ὄρους πυρσὸν ἀνάπτει οἱ δὲ νομίσαντες εἶναί τινας τῶν σεσωσμένων προσπλέουσι καὶ περὶ τὰς καφηρίδας πέτρας θραύεται τὰ σκάφη καὶ πολλοὶ τελευτῶσιν</p>
                 </details>
+                <div id="sec-bm-6" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.7...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.7&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;The others being driven to Euboea by night, Nauplius kindled a beacon on Mount Caphareus; and they, thinking it was some of those who were saved, stood in for the shore, and the vessels were wrecked on the Capherian rocks, and many men perished.&quot;}, "sec-bm-6")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -597,6 +722,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.8</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-7')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">For Palamedes, the son of Nauplius and Clymene daughter of Catreus, had been stoned to death through the machinations of Ulysses. And when Nauplius learned of it, he sailed to the Greeks and claimed satisfaction for the death of his son;</p>
@@ -604,6 +732,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ὁ γὰρ τοῦ ναυπλίου καὶ κλυμένης τῆς κατρέως υἱὸς παλαμήδης ἐπιβουλαῖς ὀδυσσέως λιθοβοληθεὶς ἀναιρεῖται τοῦτο μαθὼν ναύπλιος ἔπλευσε πρὸς τοὺς ἕλληνας καὶ τὴν τοῦ παιδὸς ἀπῄτει ποινήν</p>
                 </details>
+                <div id="sec-bm-7" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.8...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.8&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;For Palamedes, the son of Nauplius and Clymene daughter of Catreus, had been stoned to death through the machinations of Ulysses. And when Nauplius learned of it, he sailed to the Greeks and claimed satisfaction for the death of his son;&quot;}, "sec-bm-7")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -611,6 +751,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.9</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-8')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">but when he returned unsuccessful ( for they all favoured King Agamemnon, who had been the accomplice of Ulysses in the murder of Palamedes), he coasted along the Grecian lands and contrived that the wives of the Greeks should play their husbands false, Clytaemnestra with Aegisthus, Aegialia with Cometes, son of Sthenelus, and Meda, wife of Idomeneus, with Leucus.</p>
@@ -618,6 +761,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἄπρακτος δὲ ὑποστρέψας ὡς πάντων χαριζομένων τῷ βασιλεῖ ἀγαμέμνονι μεθ οὗ τὸν παλαμήδην ἀνεῖλεν ὀδυσσεύς παραπλέων τὰς χώρας τὰς ἑλληνίδας παρεσκεύασε τὰς τῶν ἑλλήνων γυναῖκας μοιχευθῆναι κλυταιμνήστραν αἰγίσθῳ αἰγιάλειαν τῷ σθενέλου κομήτῃ τὴν ἰδομενέως μήδαν ὑπὸ λεύκου</p>
                 </details>
+                <div id="sec-bm-8" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.9...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.9&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;but when he returned unsuccessful ( for they all favoured King Agamemnon, who had been the accomplice of Ulysses in the murder of Palamedes), he coasted along the Grecian lands and contrived that the wives of the Greeks should play their husbands false, Clytaemnestra with Aegisthus, Aegialia with Cometes, son of Sthenelus, and Meda, wife of Idomeneus, with Leucus.&quot;}, "sec-bm-8")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -625,6 +780,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.10</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-9')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">But Leucus killed her, together with her daughter Clisithyra, who had taken refuge in the temple; and having detached ten cities from Crete he made himself tyrant of them; and when after the Trojan war Idomeneus landed in Crete , Leucus drove him out.</p>
@@ -632,6 +790,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἣν καὶ ἀνεῖλε λεῦκος ἅμα κλεισιθύρᾳ τῇ θυγατρὶ ταύτης ἐν τῷ ναῷ προσφυγούσῃ καὶ δέκα πόλεις ἀποσπάσας τῆς κρήτης ἐτυράννησε καὶ μετὰ τὸν τρωικὸν πόλεμον καὶ τὸν ἰδομενέα κατάραντα τῇ κρήτῃ ἐξήλασε</p>
                 </details>
+                <div id="sec-bm-9" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.10...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.10&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;But Leucus killed her, together with her daughter Clisithyra, who had taken refuge in the temple; and having detached ten cities from Crete he made himself tyrant of them; and when after the Trojan war Idomeneus landed in Crete , Leucus drove him out.&quot;}, "sec-bm-9")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -639,6 +809,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.11</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-10')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">These were the earlier contrivances of Nauplius; but afterwards, when he learned that the Greeks were on their way home to their native countries, he kindled the beacon fire on Mount Caphereus, which is now called Xylophagus; and there the Greeks, standing in shore in the belief that it was a harbor, were cast away.</p>
@@ -646,6 +819,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ταῦτα πρότερον κατασκευάσας ὁ ναύπλιος ὕστερον μαθὼν τὴν εἰς τὰς πατρίδας τῶν ἑλλήνων ἐπάνοδον τὸν εἰς τὸν καφηρέα νῦν δὲ ξυλοφάγον λεγόμενον ἀνῆψε φρυκτόν ἔνθα προσπελάσαντες ἕλληνες ἐν τῷ δοκεῖν λιμένα εἶναι διεφθάρησαν</p>
                 </details>
+                <div id="sec-bm-10" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.11...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.11&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;These were the earlier contrivances of Nauplius; but afterwards, when he learned that the Greeks were on their way home to their native countries, he kindled the beacon fire on Mount Caphereus, which is now called Xylophagus; and there the Greeks, standing in shore in the belief that it was a harbor, were cast away.&quot;}, "sec-bm-10")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -653,6 +838,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.12</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-11')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">After remaining in Tenedos two days at the advice of Thetis, Neoptolemus set out for the country of the Molossians by land with Helenus, and on the way Phoenix died, and Neoptolemus buried him; and having vanquished the Molossians in battle he reigned as king and begat Molossus on Andromache. And</p>
@@ -660,6 +848,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">νεοπτόλεμος δὲ μείνας ἐν τενέδῳ δύο ἡμέρας ὑποθήκαις τῆς θέτιδος εἰς μολοσσοὺς πεζῇ ἀπῄει μετὰ ἑλένου καὶ παρὰ τὴν ὁδὸν ἀποθανόντα φοίνικα θάπτει καὶ νικήσας μάχῃ μολοσσοὺς βασιλεύει καὶ ἐξ ἀνδρομάχης γεννᾷ μολοσσόν</p>
                 </details>
+                <div id="sec-bm-11" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.12...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.12&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;After remaining in Tenedos two days at the advice of Thetis, Neoptolemus set out for the country of the Molossians by land with Helenus, and on the way Phoenix died, and Neoptolemus buried him; and having vanquished the Molossians in battle he reigned as king and begat Molossus on Andromache. And&quot;}, "sec-bm-11")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -667,6 +867,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.13</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-12')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Helenus founded a city in Molossia and inhabited it, and Neoptolemus gave him his mother Deidamia to wife. And when Peleus was expelled from Phthia by the sons of Acastus and died, Neoptolemus succeeded to his father&#x27;s kingdom.</p>
@@ -674,6 +877,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἕλενος δὲ κτίσας ἐν τῇ μολοσσίᾳ πόλιν κατοικεῖ καὶ δίδωσιν αὐτῷ νεοπτόλεμος εἰς γυναῖκα τὴν μητέρα δηιδάμειαν πηλέως δὲ ἐκ φθίας ἐκβληθέντος ὑπὸ τῶν ἀκάστου παίδων καὶ ἀποθανόντος νεοπτόλεμος τὴν βασιλείαν τοῦ πατρὸς παρέλαβε</p>
                 </details>
+                <div id="sec-bm-12" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.13...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.13&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Helenus founded a city in Molossia and inhabited it, and Neoptolemus gave him his mother Deidamia to wife. And when Peleus was expelled from Phthia by the sons of Acastus and died, Neoptolemus succeeded to his father&#x27;s kingdom.&quot;}, "sec-bm-12")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -681,6 +896,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.14</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-13')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">And when Orestes went mad, Neoptolemus carried off his wife Hermione, who had previously been betrothed to him in Troy ; and for that reason he was slain by Orestes at Delphi . But some say that he went to Delphi to demand satisfaction from Apollo for the death of his father, and that he rifled the votive offerings and set fire to the temple, and was on that account slain by Machaereus the Phocian.</p>
@@ -688,6 +906,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">καὶ μανέντος ὀρέστου ἁρπάζει τὴν ἐκείνου γυναῖκα ἑρμιόνην κατηγγυημένην αὐτῷ πρότερον ἐν τροίᾳ καὶ διὰ τοῦτο ἐν δελφοῖς ὑπὸ ὀρέστου κτείνεται ἔνιοι δὲ αὐτόν φασι παραγενόμενον εἰς δελφοὺς ἀπαιτεῖν ὑπὲρ τοῦ πατρὸς τὸν ἀπόλλωνα δίκας καὶ συλᾶν τὰ ἀναθήματα καὶ τὸν νεὼν ἐμπιμπράναι καὶ διὰ τοῦτο ὑπὸ μαχαιρέως τοῦ φωκέως ἀναιρεθῆναι</p>
                 </details>
+                <div id="sec-bm-13" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.14...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.14&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;And when Orestes went mad, Neoptolemus carried off his wife Hermione, who had previously been betrothed to him in Troy ; and for that reason he was slain by Orestes at Delphi . But some say that he went to Delphi to demand satisfaction from Apollo for the death of his father, and that he rifled the votive offerings and set fire to the temple, and was on that account slain by Machaereus the Phocian.&quot;}, "sec-bm-13")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -695,6 +925,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.15</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-14')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">After their wanderings the Greeks landed and settled in various countries, some in Libya , some in Italy , others in Sicily , and some in the islands near Iberia , others on the banks of the Sangarius river; and some settled also in Cyprus . And of those that were shipwrecked at Caphereus, some drifted one way and some another. Guneus went to Libya ; Antiphus, son of Thessalus, went to the Pelasgians, and, having taken possession of the country, called it Thessaly . Philoctetes went to the Campanians in Italy ; Phidippus with the Coans settled in Andros , Agapenor in Cyprus , and others elsewhere.</p>
@@ -702,6 +935,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ὅτι πλανηθέντες ἕλληνες ἄλλοι ἀλλαχοῦ κατάραντες κατοικοῦσιν οἱ μὲν εἰς λιβύην οἱ δὲ εἰς ἰταλίαν εἰς σικελίαν ἕτεροι τινὲς δὲ πρὸς τὰς πλησίον ἰβηρίας νήσους ἄλλοι παρὰ τὸν σαγγάριον ποταμόν εἰσὶ δὲ οἳ καὶ κύπρον ᾤκησαν τῶν δὲ ναυαγησάντων περὶ τὸν καφηρέα ἄλλος ἀλλαχῆ φέρεται γουνεὺς μὲν εἰς λιβύην ἄντιφος δὲ ὁ θεσσαλοῦ εἰς πελασγοὺς καὶ τὴν χώραν κατασχὼν θεσσαλίαν ἐκάλεσεν ὁ δὲ φιλοκτήτης πρὸς ἰταλίαν εἰς καμπανούς φείδιππος μετὰ τῶν κῴων ἐν ἄνδρῳ κατῴκησεν ἀγαπήνωρ ἐν κύπρῳ καὶ ἄλλος ἀλλαχοῦ</p>
                 </details>
+                <div id="sec-bm-14" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.15...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.15&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;After their wanderings the Greeks landed and settled in various countries, some in Libya , some in Italy , others in Sicily , and some in the islands near Iberia , others on the banks of the Sangarius river; and some settled also in Cyprus . And of those that were shipwrecked at Caphereus, some drifted one way and some another. Guneus went to Libya ; Antiphus, son of Thessalus, went to the Pelasgians, and, having taken possession of the country, called it Thessaly . Philoctetes went to the Campanians in Italy ; Phidippus with the Coans settled in Andros , Agapenor in Cyprus , and others elsewhere.&quot;}, "sec-bm-14")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -709,6 +954,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.15a</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-15')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Apollodorus and the rest say as follows. Guneus left his own ships, and having come to the Cinyps river in Libya he dwelt there. But Meges and Prothous, with many others, were cast away at Caphereus in Euboea ... and when Prothous was shipwrecked at Caphereus, the Magnesians with him drifted to Crete and settled there. Tzetzes, Scholia on Lycophron, 902</p>
@@ -716,6 +964,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἀπολλόδωρος δὲ καὶ οἱ λοιποὶ οὕτω φασί γουνεὺς εἰς λιβύην λιπὼν τὰς ἑαυτοῦ ναῦς ἐλθὼν ἐπὶ κίνυφα ποταμὸν κατοικεῖ μέγης δὲ καὶ πρόθοος ἐν εὐβοίᾳ περὶ τὸν καφηρέα σὺν πολλοῖς ἑτέροις διαφθείρεται τοῦ δὲ προθόου περὶ τὸν καφηρέα ναυαγήσαντος οἱ σὺν αὐτῷ μάγνητες εἰς κρήτην ῥιφέντες ᾤκησαν τζετζες σξηολια ον λψξοπηρον</p>
                 </details>
+                <div id="sec-bm-15" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.15a...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.15a&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Apollodorus and the rest say as follows. Guneus left his own ships, and having come to the Cinyps river in Libya he dwelt there. But Meges and Prothous, with many others, were cast away at Caphereus in Euboea ... and when Prothous was shipwrecked at Caphereus, the Magnesians with him drifted to Crete and settled there. Tzetzes, Scholia on Lycophron, 902&quot;}, "sec-bm-15")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -723,6 +983,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.15b</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-16')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">After the sack of Ilium , Menestheus, Phidippus and Antiphus, and the people of Elephenor, and Philoctetes sailed together as far as Mimas. Then Menestheus went to Melos and reigned as king, because the king there, Polyanax, had died. And Antiphus the son of Thessalus went to the Pelasgians, and having taken possession of the country he called it Thessaly . Phidippus with the Coans was driven first to Andros , and then to Cyprus , where he settled. Elephenor died in Troy , but his people were cast away in the Ionian gulf and inhabited Apollonia in Epirus . And the people of Tlepolemus touched at Crete ; then they were driven out of their course by winds and settled in the Iberian islands. ...The people of Protesilaus were cast away on Pellene near the plain of Canastrum. And Philoctetes was driven to Campania in Italy , and after making war on the Lucanians, he settled in Crimissa, near Croton and Thurium ; and, his wanderings over, he founded a sanctuary of Apollo the Wanderer ( Alaios ), to whom also he dedicated his bow, as Euphorion says. Tzetzes, Scholia on Lycophron, 911</p>
@@ -730,6 +993,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">μετὰ δὲ τὴν ἰλίου πόρθησιν μενεσθεὺς φείδιππός τε καὶ ἄντιφος καὶ οἱ ἐλεφήνορος καὶ φιλοκτήτης μέχρι μίμαντος κοινῇ ἔπλευσαν εἶτα μενεσθεὺς μὲν εἰς μῆλον ἐλθὼν βασιλεύει τοῦ ἐκεῖ βασιλέως πολυάνακτος τελευτήσαντος ἄντιφος δὲ ὁ θεσσαλοῦ εἰς πελασγοὺς ἐλθὼν καὶ τὴν χώραν κατασχὼν θεσσαλίαν ἐκάλεσε φείδιππος δὲ μετὰ κῴων ἐξωσθεὶς περὶ τὴν ἄνδρον εἶτα περὶ κύπρον ἐκεῖ κατῴκησεν ἐλεφήνορος δὲ ἀποθανόντος ἐν τροίᾳ οἱ σὺν αὐτῷ ἐκριφέντες περὶ τὸν ἰόνιον κόλπον ἀπολλωνίαν ᾤκησαν τὴν ἐν ἠπείρῳ καὶ οἱ τοῦ τληπολέμου προσίσχουσι κρήτῃ εἶτα ὑπ ἀνέμων ἐξωσθέντες περὶ τὰς ἰβηρικὰς νήσους ᾤκησαν οἱ τοῦ πρωτεσιλάου εἰς πελλήνην ἀπερρίφησαν πλησίον πεδίου κανάστρου φιλοκτήτης δὲ ἐξώσθη εἰς ἰταλίαν πρὸς καμπανοὺς καὶ πολεμήσας λευκανοὺς πλησίον κρότωνος καὶ θουρίου κρίμισσαν κατοικεῖ καὶ παυθεὶς τῆς ἄλης ἀλαίου ἀπόλλωνος ἱερὸν κτίζει ᾧ καὶ τὸ τόξον αὑτοῦ ἀνέθηκεν ὥς φησιν εὐφορίων τζετζες σξηολια ον λψξοπηρον</p>
                 </details>
+                <div id="sec-bm-16" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.15b...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.15b&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;After the sack of Ilium , Menestheus, Phidippus and Antiphus, and the people of Elephenor, and Philoctetes sailed together as far as Mimas. Then Menestheus went to Melos and reigned as king, because the king there, Polyanax, had died. And Antiphus the son of Thessalus went to the Pelasgians, and having taken possession of the country he called it Thessaly . Phidippus with the Coans was driven first to Andros , and then to Cyprus , where he settled. Elephenor died in Troy , but his people were cast away in the Ionian gulf and inhabited Apollonia in Epirus . And the people of Tlepolemus touched at Crete ; then they were driven out of their course by winds and settled in the Iberian islands. ...The people of Protesilaus were cast away on Pellene near the plain of Canastrum. And Philoctetes was driven to Campania in Italy , and after making war on the Lucanians, he settled in Crimissa, near Croton and Thurium ; and, his wanderings over, he founded a sanctuary of Apollo the Wanderer ( Alaios ), to whom also he dedicated his bow, as Euphorion says. Tzetzes, Scholia on Lycophron, 911&quot;}, "sec-bm-16")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -737,6 +1012,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.15c</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-17')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Navaethus is a river of Italy . It was called so, according to Apollodorus and the rest, because after the capture of Ilium the daughters of Laomedon, the sisters of Priam, to wit, Aethylla, Astyoche, and Medesicaste, with the other female captives, finding themselves in that part of Italy , and dreading slavery in Greece , set fire to the vessels; whence the river was called Navaethus and the women were called Nauprestides; and the Greeks who were with the women, having lost the vessels, settled there. Tzetzes, Scholia on Lycophron, 921</p>
@@ -744,6 +1022,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ναύαιθος ποταμός ἐστιν ἰταλίας ἐκλήθη δὲ οὕτω κατὰ μὲν ἀπολλόδωρον καὶ τοὺς λοιπούς ὅτι μετὰ τὴν ἰλίου ἅλωσιν αἱ λαομέδοντος θυγατέρες πριάμου δὲ ἀδελφαί αἴθυλλα ἀστυόχη μηδεσικάστη μετὰ τῶν λοιπῶν αἰχμαλωτίδων ἐκεῖσε γεγονυῖαι τῆς ἰταλίας εὐλαβούμεναι τὴν ἐν τῇ ἑλλάδι δουλείαν τὰ σκάφη ἐνέπρησαν ὅθεν ὁ ποταμὸς ναύαιθος ἐκλήθη καὶ αἱ γυναῖκες ναυπρήστιδες οἱ δὲ σὺν αὐταῖς ἕλληνες ἀπολέσαντες τὰ σκάφη ἐκεῖ κατῴκησαν τζετζες σξηολια ον λψξοπηρον</p>
                 </details>
+                <div id="sec-bm-17" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.15c...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.15c&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Navaethus is a river of Italy . It was called so, according to Apollodorus and the rest, because after the capture of Ilium the daughters of Laomedon, the sisters of Priam, to wit, Aethylla, Astyoche, and Medesicaste, with the other female captives, finding themselves in that part of Italy , and dreading slavery in Greece , set fire to the vessels; whence the river was called Navaethus and the women were called Nauprestides; and the Greeks who were with the women, having lost the vessels, settled there. Tzetzes, Scholia on Lycophron, 921&quot;}, "sec-bm-17")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -751,6 +1041,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.16</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-18')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Demophon with a few ships put in to the land of the Thracian Bisaltians, and there Phyllis, the king&#x27;s daughter, falling in love with him, was given him in marriage by her father with the kingdom for her dower. But he wished to depart to his own country, and after many entreaties and swearing to return, he did depart. And Phyllis accompanied him as far as what are called the Nine Roads, and she gave him a casket, telling him that it contained a sacrament of Mother Rhea, and that he was not to open it until he should have abandoned all hope of returning to her.</p>
@@ -758,6 +1051,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">δημοφῶν δὲ θρᾳξὶ βισάλταις μετ ὀλίγων νεῶν προσίσχει καὶ αὐτοῦ ἐρασθεῖσα φυλλὶς ἡ θυγάτηρ τοῦ βασιλέως ἐπὶ προικὶ τῇ βασιλείᾳ συνευνάζεται ὑπὸ τοῦ πατρός ὁ δὲ βουλόμενος εἰς τὴν πατρίδα ἀπιέναι πολλὰ δεηθεὶς ὀμόσας ἀναστρέψειν ἀπέρχεται καὶ φυλλὶς αὐτὸν ἄχρι τῶν ἐννέα ὁδῶν λεγομένων προπέμπει καὶ δίδωσιν αὐτῷ κίστην εἰποῦσα ἱερὸν τῆς μητρὸς ῥέας ἐνεῖναι καὶ ταύτην μὴ ἀνοίγειν εἰ μὴ ὅταν ἀπελπίσῃ τῆς πρὸς αὐτὴν ἀνόδου</p>
                 </details>
+                <div id="sec-bm-18" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.16...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.16&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Demophon with a few ships put in to the land of the Thracian Bisaltians, and there Phyllis, the king&#x27;s daughter, falling in love with him, was given him in marriage by her father with the kingdom for her dower. But he wished to depart to his own country, and after many entreaties and swearing to return, he did depart. And Phyllis accompanied him as far as what are called the Nine Roads, and she gave him a casket, telling him that it contained a sacrament of Mother Rhea, and that he was not to open it until he should have abandoned all hope of returning to her.&quot;}, "sec-bm-18")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -765,6 +1070,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.17</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-19')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">And Demophon went to Cyprus and dwelt there. And when the appointed time was past, Phyllis called down curses on Demophon and killed herself; and Demophon opened the casket, and, being struck with fear, he mounted his horse and galloping wildly met his end; for, the horse stumbling, he was thrown and fell on his sword. But his people settled in Cyprus .</p>
@@ -772,6 +1080,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">δημοφῶν δὲ ἐλθὼν εἰς κύπρον ἐκεῖ κατῴκει καὶ τοῦ τακτοῦ χρόνου διελθόντος φυλλὶς ἀρὰς θεμένη κατὰ δημοφῶντος ἑαυτὴν ἀναιρεῖ δημοφῶν δὲ τὴν κίστην ἀνοίξας φόβῳ κατασχεθεὶς ἄνεισιν ἐπὶ τὸν ἵππον καὶ τοῦτον ἐλαύνων ἀτάκτως ἀπόλλυται τοῦ γὰρ ἵππου σφαλέντος κατενεχθεὶς ἐπὶ τὸ ξίφος ἔπεσεν οἱ δὲ σὺν αὐτῷ κατῴκησαν ἐν κύπρῳ</p>
                 </details>
+                <div id="sec-bm-19" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.17...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.17&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;And Demophon went to Cyprus and dwelt there. And when the appointed time was past, Phyllis called down curses on Demophon and killed herself; and Demophon opened the casket, and, being struck with fear, he mounted his horse and galloping wildly met his end; for, the horse stumbling, he was thrown and fell on his sword. But his people settled in Cyprus .&quot;}, "sec-bm-19")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -779,6 +1099,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.18</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-20')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Podalirius went to Delphi and inquired of the oracle where he should settle; and on receiving an oracle that he should settle in the city where, if the encompassing heaven were to fall, he would suffer no harm, he settled in that place of the Carian Chersonnese which is encircled by mountains all round the horizon.</p>
@@ -786,6 +1109,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ποδαλείριος δὲ ἀφικόμενος εἰς δελφοὺς ἐχρᾶτο ποῦ κατοικήσει χρησμοῦ δὲ δοθέντος εἰς ἣν πόλιν τοῦ περιέχοντος οὐρανοῦ πεσόντος οὐδὲν πείσεται τῆς καρικῆς χερρονήσου τὸν πέριξ οὐρανοῦ κυκλούμενον ὄρεσι τόπον κατῴκησεν</p>
                 </details>
+                <div id="sec-bm-20" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.18...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.18&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Podalirius went to Delphi and inquired of the oracle where he should settle; and on receiving an oracle that he should settle in the city where, if the encompassing heaven were to fall, he would suffer no harm, he settled in that place of the Carian Chersonnese which is encircled by mountains all round the horizon.&quot;}, "sec-bm-20")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -793,6 +1128,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.19</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-21')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Amphilochus son of Alcmaeon, who, according to some, arrived later at Troy , was driven in the storm to the home of Mopsus; and, as some say, they fought a single combat for the kingdom, and slew each other.</p>
@@ -800,6 +1138,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἀμφίλοχος δὲ ὁ ἀλκμαίωνος κατά τινας ὕστερον παραγενόμενος εἰς τροίαν κατὰ τὸν χειμῶνα ἀπερρίφη πρὸς μόψον καί ὥς τινες λέγουσιν ὑπὲρ τῆς βασιλείας μονομαχοῦντες ἔκτειναν ἀλλήλους</p>
                 </details>
+                <div id="sec-bm-21" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.19...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.19&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Amphilochus son of Alcmaeon, who, according to some, arrived later at Troy , was driven in the storm to the home of Mopsus; and, as some say, they fought a single combat for the kingdom, and slew each other.&quot;}, "sec-bm-21")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -807,6 +1157,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.20</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-22')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">The Locrians regained their own country with difficulty, and three years afterwards, when Locris was visited by a plague, they received an oracle bidding them to propitiate Athena at Ilium and to send two maidens as suppliants for a thousand years. The lot first fell on Periboea and Cleopatra.</p>
@@ -814,6 +1167,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">λοκροὶ δὲ μόλις τὴν ἑαυτῶν καταλαβόντες ἐπεὶ μετὰ τρίτον ἔτος τὴν λοκρίδα κατέσχε φθορά δέχονται χρησμὸν ἐξιλάσασθαι τὴν ἐν ἰλίῳ ἀθηνᾶν καὶ δύο παρθένους πέμπειν ἱκέτιδας ἐπὶ ἔτη χίλια καὶ λαγχάνουσι πρῶται περίβοια καὶ κλεοπάτρα</p>
                 </details>
+                <div id="sec-bm-22" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.20...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.20&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;The Locrians regained their own country with difficulty, and three years afterwards, when Locris was visited by a plague, they received an oracle bidding them to propitiate Athena at Ilium and to send two maidens as suppliants for a thousand years. The lot first fell on Periboea and Cleopatra.&quot;}, "sec-bm-22")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -821,6 +1186,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.21</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-23')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">And when they came to Troy they were chased by the natives and took refuge in the sanctuary. And they did not approach the goddess, but swept and sprinkled the sanctuary; and they did not go out of the temple, and their hair was cropped, and they wore single garments and no shoes.</p>
@@ -828,6 +1196,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">αὗται δὲ εἰς τροίαν ἀφικόμεναι διωκόμεναι παρὰ τῶν ἐγχωρίων εἰς τὸ ἱερὸν κατέρχονται καὶ τῇ μὲν θεᾷ οὐ προσήρχοντο τὸ δὲ ἱερὸν ἔσαιρόν τε καὶ ἔρραινον ἐκτὸς δὲ τοῦ νεὼ οὐκ ἐξῄεσαν κεκαρμέναι δὲ ἦσαν καὶ μονοχίτωνες καὶ ἀνυπόδετοι</p>
                 </details>
+                <div id="sec-bm-23" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.21...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.21&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;And when they came to Troy they were chased by the natives and took refuge in the sanctuary. And they did not approach the goddess, but swept and sprinkled the sanctuary; and they did not go out of the temple, and their hair was cropped, and they wore single garments and no shoes.&quot;}, "sec-bm-23")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -835,6 +1215,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.22</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-24')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">And when the first maidens died, they sent others; and they entered into the city by night, lest, being seen outside the precinct, they should be put to the sword; but afterwards they sent babes with their nurses. And when the thousand years were passed, after the Phocian war they ceased to send suppliants.</p>
@@ -842,6 +1225,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">τῶν δὲ πρώτων ἀποθανουσῶν ἄλλας ἔπεμπον εἰσῄεσαν δὲ εἰς τὴν πόλιν νύκτωρ ἵνα μὴ φανεῖσαι τοῦ τεμένους ἔξω φονευθῶσι μετέπειτα δὲ βρέφη μετὰ τροφῶν ἔπεμπον χιλίων δὲ ἐτῶν παρελθόντων μετὰ τὸν φωκικὸν πόλεμον ἱκέτιδας ἐπαύσαντο πέμποντες</p>
                 </details>
+                <div id="sec-bm-24" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.22...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.22&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;And when the first maidens died, they sent others; and they entered into the city by night, lest, being seen outside the precinct, they should be put to the sword; but afterwards they sent babes with their nurses. And when the thousand years were passed, after the Phocian war they ceased to send suppliants.&quot;}, "sec-bm-24")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -849,6 +1244,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.23</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-25')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">After Agamemnon had returned to Mycenae with Cassandra, he was murdered by Aegisthus and Clytaemnestra; for she gave him a shirt without sleeves and without a neck, and while he was putting it on he was cut down, and Aegisthus reigned over Mycenae . And they killed Cassandra also.</p>
@@ -856,6 +1254,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἀγαμέμνων δὲ καταντήσας εἰς μυκήνας μετὰ κασάνδρας ἀναιρεῖται ὑπὸ αἰγίσθου καὶ κλυταιμνήστρας δίδωσι γὰρ αὐτῷ χιτῶνα ἄχειρα καὶ ἀτράχηλον καὶ τοῦτον ἐνδυόμενος φονεύεται καὶ βασιλεύει μυκηνῶν αἴγισθος κτείνουσι δὲ καὶ κασάνδραν</p>
                 </details>
+                <div id="sec-bm-25" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.23...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.23&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;After Agamemnon had returned to Mycenae with Cassandra, he was murdered by Aegisthus and Clytaemnestra; for she gave him a shirt without sleeves and without a neck, and while he was putting it on he was cut down, and Aegisthus reigned over Mycenae . And they killed Cassandra also.&quot;}, "sec-bm-25")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -863,6 +1273,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.24</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-26')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">But Electra, one of Agamemnon&#x27;s daughters, smuggled away her brother Orestes and gave him to Strophius, the Phocian, to bring up; and he brought him up with Pylades, his own son. And when Orestes was grown up, he repaired to Delphi and asked the god whether he should take vengeance on his father&#x27;s murderers.</p>
@@ -870,6 +1283,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἠλέκτρα δὲ μία τῶν ἀγαμέμνονος θυγατέρων ὀρέστην τὸν ἀδελφὸν ἐκκλέπτει καὶ δίδωσι στροφίῳ φωκεῖ τρέφειν ὁ δὲ αὐτὸν ἐκτρέφει μετὰ πυλάδου παιδὸς ἰδίου τελειωθεὶς δὲ ὀρέστης εἰς δελφοὺς παραγίνεται καὶ τὸν θεὸν ἐρωτᾷ εἰ τοὺς αὐτόχειρας τοῦ πατρὸς μετέλθοι</p>
                 </details>
+                <div id="sec-bm-26" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.24...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.24&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;But Electra, one of Agamemnon&#x27;s daughters, smuggled away her brother Orestes and gave him to Strophius, the Phocian, to bring up; and he brought him up with Pylades, his own son. And when Orestes was grown up, he repaired to Delphi and asked the god whether he should take vengeance on his father&#x27;s murderers.&quot;}, "sec-bm-26")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -877,6 +1302,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.25</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-27')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">The god gave him leave, so he departed secretly to Mycenae in company with Pylades, and killed both his mother and Aegisthus. And not long afterwards, being afflicted with madness and pursued by the Furies, he repaired to Athens and was tried in the Areopagus. He is variously said to have been brought to trial by the Furies, or by Tyndareus, or by Erigone, daughter of Aegisthus and Clytaemnestra; and the votes at his trial being equal he was acquitted.</p>
@@ -884,6 +1312,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">τοῦτο δὲ τοῦ θεοῦ ἐπιτρέποντος ἀπέρχεται εἰς μυκήνας μετὰ πυλάδου λαθραίως καὶ κτείνει τήν τε μητέρα καὶ τὸν αἴγισθον καὶ μετ οὐ πολὺ μανίᾳ κατασχεθεὶς ὑπὸ ἐρινύων διωκόμενος εἰς ἀθήνας παραγίνεται καὶ κρίνεται ἐν ἀρείῳ πάγῳ ὡς μὲν λέγουσί τινες ὑπὸ ἐρινύων ὡς δέ τινες ὑπὸ τυνδάρεω ὡς δέ τινες ὑπὸ ἠριγόνης τῆς αἰγίσθου καὶ κλυταιμνήστρας καὶ κριθεὶς ἴσων γενομένων τῶν ψήφων ἀπολύεται</p>
                 </details>
+                <div id="sec-bm-27" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.25...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.25&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;The god gave him leave, so he departed secretly to Mycenae in company with Pylades, and killed both his mother and Aegisthus. And not long afterwards, being afflicted with madness and pursued by the Furies, he repaired to Athens and was tried in the Areopagus. He is variously said to have been brought to trial by the Furies, or by Tyndareus, or by Erigone, daughter of Aegisthus and Clytaemnestra; and the votes at his trial being equal he was acquitted.&quot;}, "sec-bm-27")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -891,6 +1331,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.26</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-28')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">When he inquired how he should be rid of his disorder, the god answered that he would be rid of it if he should fetch the wooden image that was in the land of the Taurians. Now the Taurians are a part of the Scythians, who murder strangers and throw them into the sacred fire, which was in the precinct, being wafted up from Hades through a certain rock.</p>
@@ -898,6 +1341,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">ἐρομένῳ δὲ αὐτῷ πῶς ἂν ἀπαλλαγείη τῆς νόσου ὁ θεὸς εἶπεν εἰ τὸ ἐν ταύροις ξόανον μετακομίσειεν οἱ δὲ ταῦροι μοῖρά ἐστι σκυθῶν οἳ τοὺς ξένους φονεύουσι καὶ εἰς τὸ ἱερὸν πῦρ ῥίπτουσι τοῦτο ἦν ἐν τῷ τεμένει διά τινος πέτρας ἀναφερόμενον ἐξ ἅιδου</p>
                 </details>
+                <div id="sec-bm-28" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.26...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.26&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;When he inquired how he should be rid of his disorder, the god answered that he would be rid of it if he should fetch the wooden image that was in the land of the Taurians. Now the Taurians are a part of the Scythians, who murder strangers and throw them into the sacred fire, which was in the precinct, being wafted up from Hades through a certain rock.&quot;}, "sec-bm-28")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -905,6 +1360,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.27</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-29')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">So when Orestes was come with Pylades to the land of the Taurians, he was detected, caught, and carried in bonds before Thoas the king, who sent them both to the priestess. But being recognized by his sister, who acted as priestess among the Taurians, he fled with her, carrying off the wooden image. It was conveyed to Athens and is now called the image of Tauropolus. But some say that Orestes was driven in a storm to the island of Rhodes , and in accordance with an oracle the image was dedicated in a fortification wall.</p>
@@ -912,6 +1370,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">παραγενόμενος οὖν εἰς ταύρους ὀρέστης μετὰ πυλάδου φωραθεὶς ἑάλω καὶ ἄγεται πρὸς θόαντα τὸν βασιλέα δέσμιος ὁ δὲ ἀμφοτέρους πρὸς τὴν ἱέρειαν ἀποστέλλει ἐπιγνωσθεὶς δὲ ὑπὸ τῆς ἀδελφῆς ἱερὰ ποιούσης ἐν ταύροις ἄρας τὸ ξόανον σὺν αὐτῇ φεύγει κομισθὲν δὲ εἰς ἀθήνας νῦν λέγεται τὸ τῆς ταυροπόλου ἔνιοι δὲ αὐτὸν κατὰ χειμῶνα προσενεχθῆναι τῇ νήσῳ ῥόδῳ λέγουσιν αὐτὸν καὶ κατὰ χρησμὸν ἐν τείχει καθοσιωθῆναι</p>
                 </details>
+                <div id="sec-bm-29" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.27...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.27&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;So when Orestes was come with Pylades to the land of the Taurians, he was detected, caught, and carried in bonds before Thoas the king, who sent them both to the priestess. But being recognized by his sister, who acted as priestess among the Taurians, he fled with her, carrying off the wooden image. It was conveyed to Athens and is now called the image of Tauropolus. But some say that Orestes was driven in a storm to the island of Rhodes , and in accordance with an oracle the image was dedicated in a fortification wall.&quot;}, "sec-bm-29")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -919,6 +1389,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.28</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-30')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">and having come to Mycenae , he united his sister Electra in marriage to Pylades, and having himself married Hermione, or, according to some, Erigone, he begat Tisamenus, and was killed by the bite of a snake at Oresteum in Arcadia .</p>
@@ -926,6 +1399,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">καὶ δὴ ἐλθὼν εἰς μυκήνας πυλάδῃ μὲν τὴν ἀδελφὴν ἠλέκτραν συζεύγνυσιν αὐτὸς δὲ γήμας ἑρμιόνην ἢ κατά τινας ἠριγόνην τεκνοῖ τισαμενόν καὶ δηχθεὶς ὑπὸ ὄφεως ἐν ὀρεστείῳ τῆς ἀρκαδίας θνήσκει</p>
                 </details>
+                <div id="sec-bm-30" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.28...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.28&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;and having come to Mycenae , he united his sister Electra in marriage to Pylades, and having himself married Hermione, or, according to some, Erigone, he begat Tisamenus, and was killed by the bite of a snake at Oresteum in Arcadia .&quot;}, "sec-bm-30")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -933,6 +1418,9 @@
             <div class="sec-margin">
                 <span class="sec-num">6.29</span>
                 
+                <button class="context-btn" style="font-size:11px;padding:3px 7px;" onclick="toggleBookmarkDrawer('sec-bm-31')">
+                    Bookmark
+                </button>
             </div>
             <div class="sec-body">
                 <p class="eng-para">Menelaus, with five ships in all under his command, put in at Sunium, a headland of Attica ; and being again driven thence by winds to Crete he drifted far away, and wandering up and down Libya , and Phoenicia , and Cyprus , and Egypt , he collected much treasure. And according to some, he discovered Helen at the court of Proteus, king of Egypt ; for till then Menelaus had only a phantom of her made of clouds. And after wandering for eight years he came to port at Mycenae , and there found Orestes, who had avenged his father&#x27;s murder. And having come to Sparta he regained his own kingdom, and being made immortal by Hera he went to the Elysian Fields with Helen.</p>
@@ -940,6 +1428,18 @@
                     <summary>View Original Greek Text</summary>
                     <p class="orig-para">μενέλαος δὲ πέντε ναῦς τὰς πάσας ἔχων μεθ ἑαυτοῦ προσσχὼν σουνίῳ τῆς ἀττικῆς ἀκρωτηρίῳ κἀκεῖθεν εἰς κρήτην ἀπορριφεὶς πάλιν ὑπὸ ἀνέμων μακρὰν ἀπωθεῖται καὶ πλανώμενος ἀνά τε λιβύην καὶ φοινίκην καὶ κύπρον καὶ αἴγυπτον πολλὰ συναθροίζει χρήματα καὶ κατά τινας εὑρίσκεται παρὰ πρωτεῖ τῷ τῶν αἰγυπτίων βασιλεῖ ἑλένη μέχρι τότε εἴδωλον ἐκ νεφῶν ἐσχηκότος τοῦ μενελάου ὀκτὼ δὲ πλανηθεὶς ἔτη κατέπλευσεν εἰς μυκήνας κἀκεῖ κατέλαβεν ὀρέστην μετεληλυθότα τὸν τοῦ πατρὸς φόνον ἐλθὼν δὲ εἰς σπάρτην τὴν ἰδίαν ἐκτήσατο βασιλείαν καὶ ἀποθανατισθεὶς ὑπὸ ἥρας εἰς τὸ ἠλύσιον ἦλθε πεδίον μεθ ἑλένης</p>
                 </details>
+                <div id="sec-bm-31" class="bookmark-drawer" style="margin-top:10px;">
+                    <div class="bm-form-row">
+                        <select class="bm-select">
+                            <option value="General Interest">General Interest</option>
+                            <option value="Nostoi & Mythic Lore">Nostoi &amp; Mythic Lore</option>
+                            <option value="Sea-Voyage Periploi">Sea-Voyage Periploi</option>
+                            <option value="Lost Historians">Lost Historians</option>
+                        </select>
+                        <input type="text" class="bm-input" placeholder="Private note on section 6.29...">
+                        <button class="bm-save-btn" onclick='saveBookmark(this, {&quot;sector_id&quot;: &quot;APOLLODORUS_EPIT_06&quot;, &quot;work_title&quot;: &quot;Apollodorus, Epitome&quot;, &quot;cts_span&quot;: &quot;6.29&quot;, &quot;peak_snr&quot;: 0.0, &quot;dominant_channel&quot;: &quot;FULL_TEXT_EXCERPT&quot;, &quot;primary_attribution&quot;: &quot;Direct Book Section&quot;, &quot;english_text&quot;: &quot;Menelaus, with five ships in all under his command, put in at Sunium, a headland of Attica ; and being again driven thence by winds to Crete he drifted far away, and wandering up and down Libya , and Phoenicia , and Cyprus , and Egypt , he collected much treasure. And according to some, he discovered Helen at the court of Proteus, king of Egypt ; for till then Menelaus had only a phantom of her made of clouds. And after wandering for eight years he came to port at Mycenae , and there found Orestes, who had avenged his father&#x27;s murder. And having come to Sparta he regained his own kingdom, and being made immortal by Hera he went to the Elysian Fields with Helen.&quot;}, "sec-bm-31")'>Save</button>
+                    </div>
+                </div>
             </div>
         </section>
         
@@ -963,28 +1463,6 @@
             target.style.outline = '3px solid var(--accent-gold)';
             setTimeout(() => target.style.outline = 'none', 3000);
         }
-    }
-
-    function updateTheme(themeClass) {
-        document.body.classList.remove('theme-illuminated', 'theme-obsidian', 'theme-academic');
-        if (themeClass !== 'default') document.body.classList.add(themeClass);
-    }
-
-    function updateBorder(borderClass) {
-        document.body.classList.remove('border-ornate', 'border-standard', 'border-minimal');
-        document.body.classList.add(borderClass);
-    }
-
-    function updateFont(fontFamily) {
-        document.documentElement.style.setProperty('--reader-font', fontFamily);
-    }
-
-    function updateSize(px) {
-        document.documentElement.style.setProperty('--font-size', px + 'px');
-    }
-
-    function updateWidth(px) {
-        document.documentElement.style.setProperty('--page-max-width', px + 'px');
     }
 </script>
 </body>
