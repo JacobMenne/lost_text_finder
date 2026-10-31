@@ -379,7 +379,7 @@ def render_top_navbar(active_page: str = "", extra_controls_html: str = "") -> s
         <div class="toolbar-group">
             <a href="/" class="nav-btn {'active-nav' if active_page == 'archive' else ''}">Grand Archive</a>
             <a href="/bookmarks" class="nav-btn {'active-nav' if active_page == 'bookmarks' else ''}">My Bookmarks</a>
-            <a href="/public-db" class="nav-btn {'active-nav' if active_page == 'public' else ''}">Findings Archive</a>
+            <a href="/public-db" class="nav-btn {'active-nav' if active_page == 'public' else ''}">Discovery Archive</a>
             <a href="/guide" class="nav-btn {'active-nav' if active_page == 'guide' else ''}">Field Guide</a>
         </div>
         <div class="toolbar-group">

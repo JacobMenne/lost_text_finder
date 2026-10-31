@@ -219,7 +219,7 @@ def render_grand_archive_html() -> str:
     <div class="spinner-seal"></div>
     <h2 id="overlayTitle" style="margin: 0 0 8px 0; color: #d4a359;">Scanning Ancient Manuscript...</h2>
     <p style="font-family: 'EB Garamond', serif; font-size: 19px; max-width: 520px; color: #d6c6ac;">
-        Aligning Perseus TEI-XML sections, computing 3-channel stylometric divergence, and updating the Public Candidates Database...
+        Aligning Perseus TEI-XML sections, computing 3-channel stylometric divergence, and updating the Discovery Archive...
     </p>
 </div>
 
@@ -479,7 +479,7 @@ def render_public_db_page_html(search_q: str = "", channel_f: str = "", tier: st
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Public Candidates Database — Lost Text Finder</title>
+<title>Discovery Archive — Lost Text Finder</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 {SHARED_CODEX_CSS_AND_JS}
 <style>
@@ -520,7 +520,7 @@ def render_public_db_page_html(search_q: str = "", channel_f: str = "", tier: st
 <main class="tome-page">
     <header class="tome-header">
         <div class="tome-super">Shared Open SQLite Registry · data/public_candidates.db</div>
-        <h1 class="tome-title">Public Candidates Database</h1>
+        <h1 class="tome-title">Discovery Archive</h1>
         <div class="tome-stats">
             <span>Extreme Anomalies (3.0σ+): <strong>{ext_cnt}</strong></span>
             <span>Moderate Shifts (2.5σ–3.0σ): <strong>{mod_cnt}</strong></span>

@@ -5,3 +5,5 @@ data/*.xml
 data/personal_bookmarks.db
 .env
 .DS_Store
+data/scan_history.csv
+data/*.db

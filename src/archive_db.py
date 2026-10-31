@@ -1,21 +1,17 @@
-import json
-import os
 import sqlite3
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
 import pandas as pd
-import requests
 
-PUBLIC_DB_PATH = Path("data/public_candidates.db")
+DISCOVERY_DB_PATH = Path("data/public_candidates.db")
 PRIVATE_BOOKMARKS_DB_PATH = Path("data/personal_bookmarks.db")
 
 
 def init_databases():
-    PUBLIC_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DISCOVERY_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # 1. Public Candidates Database (Shared discoveries across all scanned books)
-    with sqlite3.connect(PUBLIC_DB_PATH) as conn:
+    # 1. Discovery Archive Database (All statistical anomalies >= 2.5 sigma across scanned books)
+    with sqlite3.connect(DISCOVERY_DB_PATH) as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS public_candidates (
                 candidate_id TEXT PRIMARY KEY,
@@ -60,14 +56,13 @@ def init_databases():
 def record_public_candidates(work_title: str, lang: str, ghost_df: pd.DataFrame, bound_df: pd.DataFrame):
     """
     Upserts Uncredited Passages and Extended Borrowings with peak_snr >= 2.5
-    into the Public Candidates SQLite database.
+    into the local Discovery Archive SQLite database.
     """
     init_databases()
     combined = pd.concat([ghost_df, bound_df], ignore_index=True)
     if combined.empty:
         return
 
-    # Enforce strict 2.5σ minimum floor for the public database
     combined = combined[combined["peak_snr"] >= 2.5]
     if combined.empty:
         return
@@ -96,8 +91,7 @@ def record_public_candidates(work_title: str, lang: str, ghost_df: pd.DataFrame,
             now_str,
         ))
 
-    with sqlite3.connect(PUBLIC_DB_PATH) as conn:
-        # Clean out any older sub-2.5σ noise rows
+    with sqlite3.connect(DISCOVERY_DB_PATH) as conn:
         conn.execute("DELETE FROM public_candidates WHERE peak_snr < 2.5")
         conn.executemany("""
             INSERT INTO public_candidates (
@@ -116,50 +110,6 @@ def record_public_candidates(work_title: str, lang: str, ghost_df: pd.DataFrame,
                 discovered_at = excluded.discovered_at
         """, rows_to_upsert)
         conn.commit()
-
-    threading.Thread(target=_background_remote_sync, daemon=True).start()
-
-
-def _background_remote_sync():
-    """
-    If the user sets PUBLIC_GIST_ID and GITHUB_TOKEN in a local .env file,
-    automatically pushes the updated public candidates table to a public GitHub Gist
-    in the background without ever needing `git add / git commit / git push`.
-    """
-    env_file = Path(".env")
-    env_vars = {}
-    if env_file.exists():
-        for line in env_file.read_text(encoding="utf-8").splitlines():
-            if "=" in line and not line.strip().startswith("#"):
-                k, v = line.split("=", 1)
-                env_vars[k.strip()] = v.strip().strip('"').strip("'")
-
-    gist_id = os.environ.get("PUBLIC_GIST_ID") or env_vars.get("PUBLIC_GIST_ID")
-    gh_token = os.environ.get("GITHUB_TOKEN") or env_vars.get("GITHUB_TOKEN")
-    if not gist_id or not gh_token:
-        return
-
-    try:
-        candidates = get_all_public_candidates()
-        payload = {
-            "description": "Lost Text Finder — Live Public Candidates Registry",
-            "files": {
-                "public_candidates.json": {
-                    "content": json.dumps(candidates, ensure_ascii=False, indent=2)
-                }
-            }
-        }
-        requests.patch(
-            f"https://api.github.com/gists/{gist_id}",
-            headers={
-                "Authorization": f"Bearer {gh_token}",
-                "Accept": "application/vnd.github+json",
-            },
-            json=payload,
-            timeout=15,
-        )
-    except Exception:
-        pass
 
 
 def get_all_public_candidates(
@@ -185,7 +135,7 @@ def get_all_public_candidates(
         base_where += " AND dominant_channel = ?"
         params.append(channel_filter)
 
-    with sqlite3.connect(PUBLIC_DB_PATH) as conn:
+    with sqlite3.connect(DISCOVERY_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         ext_cnt = conn.execute(
             f"SELECT COUNT(*) FROM public_candidates {base_where} AND peak_snr >= 3.0",
