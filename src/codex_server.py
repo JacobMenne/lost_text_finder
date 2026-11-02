@@ -9,8 +9,16 @@ from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 import pandas as pd
 
-from catalog import CORPUS_REGISTRY, SCAN_LOG_PATH
-from ingest import ingest_target_book
+from catalog import (
+    CORPUS_REGISTRY,
+    SCAN_LOG_PATH,
+    GENRE_OPTIONS,
+    get_full_corpus_registry,
+    save_custom_work,
+    remove_custom_work,
+    auto_classify_genre,
+)
+from ingest import ingest_target_book, inspect_and_register_work
 from scanner import scan_and_attribute
 from codex_reader import (
     open_file_cross_platform,
@@ -41,17 +49,19 @@ def _load_history_map() -> dict:
 
 
 def render_grand_archive_html() -> str:
+    registry = get_full_corpus_registry()
     history = _load_history_map()
-    total_books = sum(len(w["books"]) for w in CORPUS_REGISTRY)
+    total_books = sum(len(w["books"]) for w in registry)
     scanned_books = len(history)
     total_ghosts = sum(v["ghosts"] for v in history.values())
     total_bounds = sum(v["bounds"] for v in history.values())
 
     genres = {}
-    for work in CORPUS_REGISTRY:
+    for work in registry:
         genres.setdefault(work["genre"], []).append(work)
 
     genre_sections = []
+    builtin_ids = {w["id"] for w in CORPUS_REGISTRY}
     for genre_title, works in genres.items():
         work_cards = []
         for work in works:
@@ -80,6 +90,15 @@ def render_grand_archive_html() -> str:
                         f'</button>'
                     )
 
+            remove_btn_html = (
+             f'<button type="button" class="context-btn" '
+             f'style="color:#8b1e1e;border-color:#8b1e1e;padding:3px 9px;font-size:11.5px;margin-left:12px;" '
+             f'onclick="removeWork(\'{html.escape(wid)}\', \'{wtitle}\')">'
+             f'✕ Remove Work</button>'
+             if wid not in builtin_ids
+             else ""
+         )
+
             work_cards.append(f"""
             <article class="work-card">
                 <header class="work-header">
@@ -87,7 +106,10 @@ def render_grand_archive_html() -> str:
                         <span class="work-title">{wtitle}</span>
                         <span class="lang-pill">{lang}</span>
                     </div>
-                    <span class="progress-pill">{done_cnt} / {len(work["books"])} Scanned</span>
+                    <div style="display:flex;align-items:center;">
+                        <span class="progress-pill">{done_cnt} / {len(work["books"])} Scanned</span>
+                        {remove_btn_html}
+                    </div>
                 </header>
                 <div class="book-grid">
                     {"".join(book_buttons)}
@@ -102,7 +124,6 @@ def render_grand_archive_html() -> str:
         </section>
         """)
 
-    # Bundled Scanner Parameters Popover + Random Survey Button in Top Bar
     scan_controls_html = """
     <div class="settings-dropdown">
         <button class="nav-btn" onclick="toggleScanParams(event)">Scan Parameters ▾</button>
@@ -219,7 +240,7 @@ def render_grand_archive_html() -> str:
     <div class="spinner-seal"></div>
     <h2 id="overlayTitle" style="margin: 0 0 8px 0; color: #d4a359;">Scanning Ancient Manuscript...</h2>
     <p style="font-family: 'EB Garamond', serif; font-size: 19px; max-width: 520px; color: #d6c6ac;">
-        Aligning Perseus TEI-XML sections, computing 3-channel stylometric divergence, and updating the Discovery Archive...
+        Aligning Perseus TEI-XML sections, computing 3-channel stylometric divergence, and indexing anomalies into the Discovery Archive...
     </p>
 </div>
 
@@ -232,7 +253,7 @@ def render_grand_archive_html() -> str:
         <p class="tome-sub">
             Select any surviving Greek or Latin compilation book below to scan for uncredited fragments of lost histories, sea-voyage manuals (periploi), and embedded verse.
         </p>
-        <div class="tome-stats">
+        <div class="tome-stats" style="align-items:center;">
             <span>Archive Progress: <strong>{scanned_books} / {total_books} Books Scanned</strong></span>
             <span>Uncredited Passages: <strong>{total_ghosts}</strong></span>
             <span>Extended Borrowings: <strong>{total_bounds}</strong></span>
@@ -246,6 +267,65 @@ def render_grand_archive_html() -> str:
     </header>
 
     {"".join(genre_sections)}
+
+    <section class="work-card" style="margin-top:42px;padding:24px 28px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:2px solid var(--border-ornate);padding-bottom:12px;margin-bottom:16px;">
+            <div>
+                <h2 style="font-family:'Cinzel',serif;color:var(--accent-gold);margin:0;font-size:20px;">
+                    Expand the Grand Archive — Add New Ancient Texts
+                </h2>
+                <p style="margin:4px 0 0 0;color:var(--text-muted);font-size:16px;">
+                    Import any open-access Greek or Latin compilation from Perseus or First1KGreek. See the <a href="/guide#adding-texts" class="help-link">Field Guide instructions</a> for details.
+                </p>
+            </div>
+            <button class="context-btn" onclick="document.getElementById('addWorkDrawer').classList.toggle('open')">
+                + Add New Text to Archive
+            </button>
+        </div>
+
+        <div style="display:flex;gap:16px;flex-wrap:wrap;font-family:'Cinzel',serif;font-size:12.5px;margin-bottom:10px;">
+            <span>Browse Compatible Repositories:</span>
+            <a href="https://scaife.perseus.org/" target="_blank" class="help-link">Perseus Scaife Viewer ↗</a>
+            <a href="https://github.com/PerseusDL/canonical-greekLit/tree/master/data" target="_blank" class="help-link">Perseus Greek GitHub (TLG) ↗</a>
+            <a href="https://github.com/PerseusDL/canonical-latinLit/tree/master/data" target="_blank" class="help-link">Perseus Latin GitHub (PHI) ↗</a>
+            <a href="https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data" target="_blank" class="help-link">First1KGreek Repository ↗</a>
+        </div>
+
+        <div id="addWorkDrawer" class="bookmark-drawer" style="padding-top:16px;">
+            <form method="POST" action="/api/add-work" onsubmit="document.getElementById('overlayTitle').textContent='Inspecting &amp; Indexing New XML Corpus...';document.getElementById('scanOverlay').style.display='flex';">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                    <div>
+                        <label style="display:block;margin-bottom:4px;font-weight:700;">Author &amp; Work Title</label>
+                        <input type="text" name="title" required placeholder="e.g. Polybius, Histories  or  Arrian, Anabasis" class="bm-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="display:block;margin-bottom:4px;font-weight:700;">GitHub Folder URL or Data Path</label>
+                        <input type="text" name="dir_path" required placeholder="e.g. data/tlg0543/tlg001 or full GitHub folder URL" class="bm-input" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="display:block;margin-bottom:4px;font-weight:700;">Source Repository</label>
+                        <select name="repo" class="bm-select" style="width:100%;">
+                            <option value="PerseusDL/canonical-greekLit">Perseus Digital Library — Greek (canonical-greekLit)</option>
+                            <option value="PerseusDL/canonical-latinLit">Perseus Digital Library — Latin (canonical-latinLit)</option>
+                            <option value="OpenGreekAndLatin/First1KGreek">OpenGreekAndLatin — First1KGreek</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;margin-bottom:4px;font-weight:700;">Archive Category (Auto or Manual)</label>
+                        <select name="genre" class="bm-select" style="width:100%;">
+                            <option value="AUTO">Auto-Assign Category from Title &amp; Language</option>
+                            <option value="1. Universal & Hellenistic History">1. Universal &amp; Hellenistic History</option>
+                            <option value="2. Ancient Geography & Periploi">2. Ancient Geography &amp; Periploi</option>
+                            <option value="3. Mythology & Heroic Compendia">3. Mythology &amp; Heroic Compendia</option>
+                            <option value="4. Biography & Literary Miscellany">4. Biography &amp; Literary Miscellany</option>
+                            <option value="5. Roman & Latin Encyclopedias">5. Roman &amp; Latin Encyclopedias</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="bm-save-btn">Inspect XML &amp; Add to Grand Archive</button>
+            </form>
+        </div>
+    </section>
 </main>
 
 <script>
@@ -273,6 +353,14 @@ def render_grand_archive_html() -> str:
         document.getElementById('scanOverlay').style.display = 'flex';
         window.location.href = `/random?win=${{winSize}}&snr=${{snr}}`;
     }}
+
+    async function removeWork(workId, title) {{
+     if (!confirm('Remove ' + title + ' and all its scanned data from the archive?')) return;
+     const resp = await fetch('/api/remove-work?id=' + encodeURIComponent(workId), {{ method: 'POST' }});
+     if (resp.ok) {{
+         window.location.href = '/';
+     }}
+    }}
 </script>
 </body>
 </html>
@@ -283,7 +371,6 @@ def render_bookmarks_page_html() -> str:
     bookmarks = get_personal_bookmarks()
     navbar_html = render_top_navbar(active_page="bookmarks")
 
-    # Group bookmarks by folder_tag
     grouped = {}
     for bm in bookmarks:
         grouped.setdefault(bm["folder_tag"], []).append(bm)
@@ -378,6 +465,7 @@ def render_bookmarks_page_html() -> str:
 </html>
 """
 
+
 def _highlight_text(escaped_text: str, query: str) -> str:
     """Wraps case-insensitive matches of query in <mark class='search-highlight'> tags."""
     q_clean = query.strip()
@@ -385,6 +473,7 @@ def _highlight_text(escaped_text: str, query: str) -> str:
         return escaped_text
     pattern = re.compile(f"({re.escape(html.escape(q_clean))})", re.IGNORECASE)
     return pattern.sub(r'<mark class="search-highlight">\1</mark>', escaped_text)
+
 
 def render_public_db_page_html(search_q: str = "", channel_f: str = "", tier: str = "extreme") -> str:
     if tier not in ("extreme", "moderate"):
@@ -519,7 +608,7 @@ def render_public_db_page_html(search_q: str = "", channel_f: str = "", tier: st
 {navbar_html}
 <main class="tome-page">
     <header class="tome-header">
-        <div class="tome-super">Shared Open SQLite Registry · data/public_candidates.db</div>
+        <div class="tome-super">Codex Philologica · Indexed Stylometric Anomalies</div>
         <h1 class="tome-title">Discovery Archive</h1>
         <div class="tome-stats">
             <span>Extreme Anomalies (3.0σ+): <strong>{ext_cnt}</strong></span>
@@ -528,7 +617,6 @@ def render_public_db_page_html(search_q: str = "", channel_f: str = "", tier: st
         </div>
 
         <form id="pubFilterForm" method="GET" action="/public-db">
-            <!-- Two-Option Radio Toggle for Anomaly Tier -->
             <div class="tier-radio-group">
                 <label class="tier-radio-label {'active-tier' if tier == 'extreme' else ''}">
                     <input type="radio" name="tier" value="extreme" {'checked' if tier == 'extreme' else ''} onchange="document.getElementById('pubFilterForm').submit()">
@@ -610,7 +698,7 @@ def render_field_guide_html() -> str:
     </header>
 
     <section class="guide-section">
-        <h2>1. How the Scanner Works </h2>
+        <h2>1. How the Scanner Works</h2>
         <p>
             Over 90% of ancient Greek and Roman literature has been lost. However, surviving encyclopedic writers—such as <strong>Strabo</strong>, <strong>Diodorus Siculus</strong>, <strong>Pausanias</strong>, <strong>Athenaeus</strong>, and <strong>Pliny the Elder</strong>—sat in ancient libraries with hundreds of now-vanished scrolls and copied long passages from them directly into their own chapters.
         </p>
@@ -622,15 +710,15 @@ def render_field_guide_html() -> str:
     <section class="guide-section">
         <h2>2. Understanding the Three Finding Types</h2>
         <div class="term-grid">
-            <div class="term-key">★ Uncredited Passage</div>
+            <div class="term-key">Uncredited Passage</div>
             <div>
                 <strong>Highest Discovery Priority.</strong> The Greek or Latin text inside this passage exhibits a strong statistical shift away from the book's host author, yet <em>no lost source or author is named anywhere nearby</em>. These are prime candidates for unrecognized borrowings from lost works.
             </div>
-            <div class="term-key">◆ Extended Borrowing</div>
+            <div class="term-key">Extended Borrowing</div>
             <div>
                 <strong>Unmarked Continuation Past a Quote.</strong> The compiler explicitly named a lost author (e.g., <em>"As Artemidorus says..."</em>) one to three sections earlier, and modern translators closed the quotation marks—but our scanner proves the foreign author's statistical fingerprint continues into these subsequent paragraphs.
             </div>
-            <div class="term-key">● Explicit Citation</div>
+            <div class="term-key">Explicit Citation</div>
             <div>
                 <strong>Known Reference Quote.</strong> The compiler explicitly names a source right inside this section. The scanner uses these known quotes to calibrate its <strong>Suspect Lineup</strong> so it can identify who wrote the Uncredited Passages.
             </div>
@@ -674,6 +762,30 @@ def render_field_guide_html() -> str:
                 The three-panel chart plotting <strong>Channel 1 (Lost Historian)</strong>, <strong>Channel 2 (Lost Periplus Sea-Log)</strong>, and <strong>Channel 3 (Embedded Verse / Mythic Meter)</strong> across the entire book from start to finish.
             </div>
         </div>
+    </section>
+
+    <section id="adding-texts" class="guide-section">
+        <h2>4. How to Add New Texts from Perseus &amp; OpenGreekAndLatin</h2>
+        <p>
+            You are not limited to the initial ten compilations in the Grand Archive. The ingestion engine supports any open-access TEI-XML text hosted in the <strong>CapiTainS / Perseus Digital Library</strong> ecosystem:
+        </p>
+        <div class="term-grid">
+            <div class="term-key"><a href="https://github.com/PerseusDL/canonical-greekLit/tree/master/data" target="_blank" class="help-link">Perseus Greek (TLG) ↗</a></div>
+            <div>
+                Contains Classical and Hellenistic Greek prose compilations (Polybius, Arrian, Josephus, Plutarch, Xenophon, Dionysius of Halicarnassus). Each author folder is named by its TLG number (e.g., <code>data/tlg0543/tlg001</code> for Polybius's <em>Histories</em>).
+            </div>
+            <div class="term-key"><a href="https://github.com/PerseusDL/canonical-latinLit/tree/master/data" target="_blank" class="help-link">Perseus Latin (PHI) ↗</a></div>
+            <div>
+                Contains Classical Latin histories and encyclopedias (Livy, Suetonius, Tacitus, Vitruvius, Ammianus Marcellinus). Each folder is named by its PHI identifier (e.g., <code>data/phi0914/phi001</code> for Livy's <em>History of Rome</em>).
+            </div>
+            <div class="term-key"><a href="https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data" target="_blank" class="help-link">First1KGreek ↗</a></div>
+            <div>
+                The <em>First Thousand Years of Greek</em> repository—adds hundreds of late antique histories, scholia, geographical epitomes, and lexicographers not included in core Perseus.
+            </div>
+        </div>
+        <p style="margin-top:16px;">
+            <strong>Step-by-Step:</strong> Scroll to the bottom of the <strong>Grand Archive</strong> page, click <strong>"+ Add New Text to Archive"</strong>, paste either the full GitHub folder URL (or the <code>data/tlgXXXX/tlgXXX</code> path), enter the Author &amp; Work Title, and choose <strong>Auto-Assign Category</strong> (or select one of the five genres manually). The pipeline will automatically download the XML, count all surviving books in numerical order, and add the work to your permanent catalog.
+        </p>
     </section>
 </main>
 </body>
@@ -736,7 +848,6 @@ class CodexRequestHandler(BaseHTTPRequestHandler):
             codex_file = Path("candidates") / f"{sec_low}_codex.html"
             if codex_file.exists():
                 html_text = codex_file.read_text(encoding="utf-8")
-                # Upgrade older cached files if they lack the new bundled navbar
                 if "toggleSettingsMenu" not in html_text:
                     work_part, book_part = sec_low.rsplit("_", 1)
                     self.send_response(302)
@@ -747,14 +858,15 @@ class CodexRequestHandler(BaseHTTPRequestHandler):
                 return
 
         if path == "/random":
+            registry = get_full_corpus_registry()
             history = _load_history_map()
             unscanned = []
-            for w in CORPUS_REGISTRY:
+            for w in registry:
                 for b in w["books"]:
                     if f"{w['id'].upper()}_{b.zfill(2)}" not in history:
                         unscanned.append((w["id"], b))
             if not unscanned:
-                w = random.choice(CORPUS_REGISTRY)
+                w = random.choice(registry)
                 work_id, book_num = w["id"], random.choice(w["books"])
             else:
                 work_id, book_num = random.choice(unscanned)
@@ -767,12 +879,13 @@ class CodexRequestHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/scan":
+            registry = get_full_corpus_registry()
             work_id = params.get("work", ["strabo"])[0]
             book_num = params.get("book", ["14"])[0]
             win_size = int(params.get("win", ["180"])[0])
             snr_thresh = float(params.get("snr", ["2.8"])[0])
 
-            work = next((w for w in CORPUS_REGISTRY if w["id"] == work_id), CORPUS_REGISTRY[0])
+            work = next((w for w in registry if w["id"] == work_id), registry[0])
             sec_id = f"{work['id'].upper()}_{book_num.zfill(2)}"
             target = {**work, "selected_book": book_num, "sector_id": sec_id}
 
@@ -824,8 +937,53 @@ class CodexRequestHandler(BaseHTTPRequestHandler):
             self._send_html('{"status":"deleted"}', status=200)
             return
 
+        if path == "/api/add-work":
+            length = int(self.headers.get("Content-Length", "0"))
+            raw_body = self.rfile.read(length).decode("utf-8")
+            form = parse_qs(raw_body)
+
+            title = form.get("title", ["Custom Work"])[0].strip()
+            dir_path = form.get("dir_path", [""])[0].strip()
+            repo = form.get("repo", ["PerseusDL/canonical-greekLit"])[0].strip()
+            genre_choice = form.get("genre", ["AUTO"])[0].strip()
+
+            work_id = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")[:24]
+
+            try:
+                meta = inspect_and_register_work(repo=repo, dir_path=dir_path, work_id=work_id)
+                final_genre = (
+                    auto_classify_genre(title, meta["lang"])
+                    if genre_choice == "AUTO"
+                    else genre_choice
+                )
+                new_work = {
+                    "id": work_id,
+                    "genre": final_genre,
+                    "title": title,
+                    "lang": meta["lang"],
+                    "books": meta["books"],
+                    "book_label": meta["book_label"],
+                    "repo": meta["repo"],
+                    "dir_path": meta["dir_path"],
+                }
+                save_custom_work(new_work)
+                self.send_response(302)
+                self.send_header("Location", "/")
+                self.end_headers()
+            except Exception as exc:
+                err_msg = f"<h2>Could not import work '{html.escape(title)}'</h2><pre>{html.escape(str(exc))}</pre><p><a href='/'>Return to Grand Archive</a></p>"
+                self._send_html(err_msg, status=400)
+            return
+
         self.send_response(404)
         self.end_headers()
+
+        if path == "/api/remove-work":
+         work_id = params.get("id", [""])[0].strip()
+         if work_id:
+             remove_custom_work(work_id)
+         self._send_html('{"status":"removed"}', status=200)
+         return
 
 
 class ReusableHTTPServer(HTTPServer):
@@ -850,7 +1008,7 @@ def launch_codex_app(port: int = 8765):
     print("\n" + "═" * 78)
     print(" LOST TEXT FINDER — GRAND ARCHIVE CODEX SERVER ACTIVE")
     print(f"    URL: {url}")
-    print("    (Click '⏻ Exit' in the browser or press Ctrl+C here to quit)")
+    print("    (Click 'Exit' in the browser or press Ctrl+C here to quit)")
     print("═" * 78)
     open_file_cross_platform(Path(url))
     try:

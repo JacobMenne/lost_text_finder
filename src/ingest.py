@@ -53,6 +53,12 @@ def resolve_perseus_urls(repo: str, dir_path: str, lang: str) -> tuple[str, str 
     if not orig_url:
         raise FileNotFoundError(f"Could not locate source XML in {repo}/{dir_path}")
 
+    if not eng_url:
+        raise ValueError(
+            f"Rejected '{repo}/{dir_path}': No aligned English translation XML (.perseus-eng*.xml) "
+            f"exists in this repository folder. Only works with parallel English translations are permitted."
+        )
+
     return orig_url, eng_url
 
 
@@ -182,6 +188,76 @@ def extract_book_sections(xml_path: str, target_book: str, lang: str, is_source:
             )
 
     return sections
+
+def inspect_and_register_work(repo: str, dir_path: str, work_id: str, lang_hint: str = "AUTO") -> dict:
+    """
+    Probes a GitHub TEI-XML directory (Perseus Greek, Perseus Latin, or First1KGreek),
+    downloads the source and English XML files, and automatically extracts all valid
+    book/section numbers in order.
+    """
+    clean_dir = dir_path.strip().strip("/")
+    if "github.com/" in clean_dir:
+        # Allow pasting a full GitHub URL like https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0007/tlg001
+        parts = clean_dir.split("github.com/", 1)[1].split("/")
+        repo = f"{parts[0]}/{parts[1]}"
+        if "data/" in clean_dir:
+            clean_dir = "data/" + clean_dir.split("data/", 1)[1]
+
+    if lang_hint == "AUTO":
+        lang = "LATIN" if ("latinLit" in repo or "phi" in clean_dir.lower()) else "GREEK"
+    else:
+        lang = lang_hint
+
+    orig_url, eng_url = resolve_perseus_urls(repo, clean_dir, lang)
+    orig_cache = f"data/{work_id}_orig.xml"
+    eng_cache = f"data/{work_id}_eng.xml"
+
+    download_xml(orig_url, orig_cache)
+    download_xml(eng_url, eng_cache)
+
+    # Parse XML to auto-discover all surviving book numbers in order
+    parser = etree.XMLParser(recover=True, resolve_entities=False, huge_tree=True)
+    tree = etree.parse(orig_cache, parser)
+    root = tree.getroot()
+
+    books = []
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        if not etree.QName(el).localname.startswith("div"):
+            continue
+        div_type = (el.get("subtype") or el.get("type") or "").lower()
+        div_n = str(el.get("n") or "").strip()
+        if div_type in ("book", "textpart") and div_n and div_n not in books:
+            books.append(div_n)
+
+    # Fallback for single-book or chapter-top-level works (like Epitomes)
+    if not books:
+        for el in root.iter():
+            if not isinstance(el.tag, str):
+                continue
+            if not etree.QName(el).localname.startswith("div"):
+                continue
+            div_type = (el.get("subtype") or el.get("type") or "").lower()
+            div_n = str(el.get("n") or "").strip()
+            if div_type == "chapter" and div_n and div_n not in books:
+                books.append(div_n)
+
+    if not books:
+        books = ["1"]
+
+    if len(books) > 1:
+        book_label = f"Books {books[0]}–{books[-1]} ({len(books)} Books)"
+    else:
+        book_label = "Complete Work (1 Book)"
+
+    return {
+        "repo": repo,
+        "dir_path": clean_dir,
+        "lang": lang,
+        "books": books,
+        "book_label": book_label,
+    }
 
 
 def ingest_target_book(target: dict) -> str:

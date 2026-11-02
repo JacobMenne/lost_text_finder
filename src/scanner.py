@@ -1,6 +1,7 @@
 from archive_db import record_public_candidates
 from pathlib import Path
 from codex_reader import generate_codex_html, open_file_cross_platform
+import re
 import os
 import textwrap
 import unicodedata
@@ -399,13 +400,18 @@ def scan_and_attribute(
     suspect_profiles = {}
     suspect_sections = {}
     for s_label, kw_list in SUSPECT_AUTHORS.items():
+        # Prevent Roman/Latin annalists from being matched inside Greek texts
+        if "Roman Annalists" in s_label and lang != "LATIN":
+            continue
+
+        kw_pattern = re.compile(r"\b(?:" + "|".join(re.escape(k) for k in kw_list) + r")\b", re.IGNORECASE)
         matched_win = [
             i for i, eng in enumerate(wdf["center_english"])
-            if any(k in eng.lower() for k in kw_list)
+            if kw_pattern.search(str(eng))
         ]
         matched_sec = [
             i for i, eng in enumerate(df["english_text"].fillna(""))
-            if any(k in eng.lower() for k in kw_list)
+            if kw_pattern.search(str(eng))
         ]
         if matched_win:
             suspect_profiles[s_label] = np.mean(win_z[matched_win], axis=0)

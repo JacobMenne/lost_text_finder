@@ -1,6 +1,8 @@
 import os
 import random
 import pandas as pd
+import json
+from pathlib import Path
 
 SCAN_LOG_PATH = "data/scan_history.csv"
 
@@ -26,6 +28,16 @@ CORPUS_REGISTRY = [
         "book_label": "Books 1–5 (5 Books)",
         "repo": "PerseusDL/canonical-greekLit",
         "dir_path": "data/tlg0551/tlg017",
+    },
+    {
+        "id": "polybius",
+        "genre": "1. Universal & Hellenistic History",
+        "title": "Polybius, Histories",
+        "lang": "GREEK",
+        "books": [str(b) for b in range(1, 40)],
+        "book_label": "Books 1–39 (39 Books)",
+        "repo": "PerseusDL/canonical-greekLit",
+        "dir_path": "data/tlg0543/tlg001",
     },
     {
         "id": "strabo",
@@ -68,24 +80,14 @@ CORPUS_REGISTRY = [
         "dir_path": "data/tlg0548/tlg002",
     },
     {
-        "id": "athenaeus",
+        "id": "josephus",
         "genre": "4. Biography & Literary Miscellany",
-        "title": "Athenaeus, Deipnosophistae",
+        "title": "Flavius Josephus, Antiquities",
         "lang": "GREEK",
-        "books": [str(b) for b in range(1, 16)],
-        "book_label": "Books 1–15 (15 Books)",
+        "books": [str(b) for b in range(1, 21)],
+        "book_label": "Books 1–20 (20 Books)",
         "repo": "PerseusDL/canonical-greekLit",
-        "dir_path": "data/tlg0008/tlg001",
-    },
-    {
-        "id": "diogenes",
-        "genre": "4. Biography & Literary Miscellany",
-        "title": "Diogenes Laertius, Lives of the Philosophers",
-        "lang": "GREEK",
-        "books": [str(b) for b in range(1, 11)],
-        "book_label": "Books 1–10 (10 Books)",
-        "repo": "PerseusDL/canonical-greekLit",
-        "dir_path": "data/tlg0004/tlg001",
+        "dir_path": "data/tlg0526/tlg001",
     },
     {
         "id": "pliny",
@@ -108,6 +110,113 @@ CORPUS_REGISTRY = [
         "dir_path": "data/phi1254/phi001",
     },
 ]
+
+CUSTOM_WORKS_PATH = Path("data/custom_works.json")
+
+GENRE_OPTIONS = [
+    "1. Universal & Hellenistic History",
+    "2. Ancient Geography & Periploi",
+    "3. Mythology & Heroic Compendia",
+    "4. Biography & Literary Miscellany",
+    "5. Roman & Latin Encyclopedias",
+]
+
+
+def auto_classify_genre(title: str, lang: str) -> str:
+    """Automatically assigns one of the 5 standard genres based on title/author keywords."""
+    t_low = title.lower()
+    if any(k in t_low for k in ["geograph", "peripl", "pausanias", "strabo", "tour", "coast", "island"]):
+        return "2. Ancient Geography & Periploi"
+    if any(k in t_low for k in ["myth", "fable", "hyginus", "apollodorus", "hero", "epitome", "ovid"]):
+        return "3. Mythology & Heroic Compendia"
+    if any(k in t_low for k in ["lives", "life", "plutarch", "biograph", "banquet", "moralia", "athenaeus", "philosoph"]):
+        return "4. Biography & Literary Miscellany"
+    if lang == "LATIN" and any(k in t_low for k in ["natural", "nights", "encyclop", "varro", "pliny", "solinus", "censorinus"]):
+        return "5. Roman & Latin Encyclopedias"
+    return "1. Universal & Hellenistic History"
+
+
+def get_full_corpus_registry() -> list[dict]:
+    """Returns built-in CORPUS_REGISTRY merged with any user-added works in data/custom_works.json."""
+    registry = list(CORPUS_REGISTRY)
+    if CUSTOM_WORKS_PATH.exists():
+        try:
+            custom_list = json.loads(CUSTOM_WORKS_PATH.read_text(encoding="utf-8"))
+            existing_ids = {w["id"] for w in registry}
+            for cw in custom_list:
+                if cw["id"] not in existing_ids:
+                    registry.append(cw)
+        except Exception:
+            pass
+    return registry
+
+
+def save_custom_work(new_work: dict):
+    CUSTOM_WORKS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    custom_list = []
+    if CUSTOM_WORKS_PATH.exists():
+        try:
+            custom_list = json.loads(CUSTOM_WORKS_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            custom_list = []
+    custom_list = [w for w in custom_list if w["id"] != new_work["id"]]
+    custom_list.append(new_work)
+    CUSTOM_WORKS_PATH.write_text(json.dumps(custom_list, indent=2), encoding="utf-8")
+
+def remove_custom_work(work_id: str):
+    """
+    Removes a custom work from data/custom_works.json and purges all of its
+    cached XML, aligned CSVs, Codex HTML files, scan history, and Discovery Archive rows.
+    """
+    import glob
+    import json
+    import os
+    import sqlite3
+    from pathlib import Path
+    import pandas as pd
+
+    wid_clean = work_id.strip().lower()
+    wid_upper = wid_clean.upper()
+
+    # 1. Remove from custom_works.json
+    if CUSTOM_WORKS_PATH.exists():
+        custom_list = json.loads(CUSTOM_WORKS_PATH.read_text(encoding="utf-8"))
+        before_cnt = len(custom_list)
+        custom_list = [
+            w for w in custom_list
+            if str(w.get("id", "")).strip().lower() != wid_clean
+        ]
+        CUSTOM_WORKS_PATH.write_text(json.dumps(custom_list, indent=2), encoding="utf-8")
+        print(f"[*] Removed '{wid_clean}' from custom_works.json ({before_cnt} -> {len(custom_list)} custom works)")
+
+    # 2. Remove from scan_history.csv
+    if os.path.exists(SCAN_LOG_PATH):
+        df = pd.read_csv(SCAN_LOG_PATH)
+        df = df[~df["sector_id"].astype(str).str.upper().str.startswith(wid_upper + "_")]
+        df.to_csv(SCAN_LOG_PATH, index=False)
+
+    # 3. Remove from Discovery Archive SQLite DB (data/public_candidates.db)
+    db_path = Path("data/public_candidates.db")
+    if db_path.exists():
+        with sqlite3.connect(db_path) as conn:
+            conn.execute(
+                "DELETE FROM public_candidates WHERE UPPER(sector_id) LIKE ?",
+                (f"{wid_upper}_%",),
+            )
+            conn.commit()
+
+    # 4. Delete cached XML, aligned CSVs, plots, and Codex HTML files
+    for pat in [
+        f"data/{wid_clean}_*.xml",
+        f"data/{wid_clean}_*_aligned.csv",
+        f"candidates/{wid_clean}_*",
+        f"candidates/*/{wid_clean}_*",
+    ]:
+        for filepath in glob.glob(pat):
+            try:
+                os.remove(filepath)
+            except OSError:
+                pass
 
 def get_scan_history() -> dict:
     if not os.path.exists(SCAN_LOG_PATH):
